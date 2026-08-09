@@ -1,0 +1,9 @@
+{
+ "name": "rig-gtm-pack",
+ "version": "1.0.0",
+ "description": "28 prime GTM agents \u2014 pipeline, outbound, revenue ops. Every agent carries an RLM contract, a reward environment, and an executable done-test.",
+ "author": {
+  "name": "RIG \u2014 Rodgers Intelligence Group",
+  "url": "https://rodgersintelligence.com"
+ }
+}

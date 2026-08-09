@@ -1,0 +1,9 @@
+{
+ "name": "rig-prime-fleet",
+ "version": "1.0.0",
+ "description": "All 122 prime agents + 56 harnesses \u2014 the complete governed fleet. Every agent carries an RLM contract, a reward environment, and an executable done-test.",
+ "author": {
+  "name": "RIG \u2014 Rodgers Intelligence Group",
+  "url": "https://rodgersintelligence.com"
+ }
+}

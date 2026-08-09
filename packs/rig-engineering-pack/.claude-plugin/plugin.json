@@ -1,0 +1,9 @@
+{
+ "name": "rig-engineering-pack",
+ "version": "1.0.0",
+ "description": "25 prime engineering agents \u2014 architecture, code, perf, review. Every agent carries an RLM contract, a reward environment, and an executable done-test.",
+ "author": {
+  "name": "RIG \u2014 Rodgers Intelligence Group",
+  "url": "https://rodgersintelligence.com"
+ }
+}

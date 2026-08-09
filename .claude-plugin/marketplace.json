@@ -1,0 +1,38 @@
+{
+ "name": "rig-marketplace",
+ "owner": {
+  "name": "RIG \u2014 Rodgers Intelligence Group",
+  "url": "https://rodgersintelligence.com"
+ },
+ "metadata": {
+  "description": "Governed prime-agent packs with executable proof.",
+  "version": "1.0.0"
+ },
+ "plugins": [
+  {
+   "name": "rig-engineering-pack",
+   "source": "./packs/rig-engineering-pack",
+   "description": "25 prime engineering agents \u2014 architecture, code, perf, review."
+  },
+  {
+   "name": "rig-content-pack",
+   "source": "./packs/rig-content-pack",
+   "description": "25 prime content agents \u2014 long-form, short-form, editorial ops."
+  },
+  {
+   "name": "rig-design-pack",
+   "source": "./packs/rig-design-pack",
+   "description": "25 prime design agents \u2014 systems, UX research, visual direction."
+  },
+  {
+   "name": "rig-gtm-pack",
+   "source": "./packs/rig-gtm-pack",
+   "description": "28 prime GTM agents \u2014 pipeline, outbound, revenue ops."
+  },
+  {
+   "name": "rig-prime-fleet",
+   "source": "./packs/rig-prime-fleet",
+   "description": "All 122 prime agents + 56 harnesses \u2014 the complete governed fleet."
+  }
+ ]
+}
