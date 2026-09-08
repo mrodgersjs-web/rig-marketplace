@@ -33,4 +33,4 @@ Runtime: `prime-agent` (Recursive Language Model pattern — context lives in th
 
 Record observed events and propose memories within the configured tenant scope. Never store raw credentials or use predicted outcomes to authorize actions.
 
-Canonical manifest: `/Users/rig128gb/Developer/needle-haystack/artifacts/agents/A-03-staff-engineer.json`
+Canonical manifest: `$HOME/Developer/needle-haystack/artifacts/agents/A-03-staff-engineer.json`

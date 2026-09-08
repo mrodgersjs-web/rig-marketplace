@@ -145,7 +145,7 @@ refutation_gate:
 
 # --- deviatrix round4 executable refutation ---
 refutation_protocol:
-  executor: "python3 /Users/rig128gb/Developer/needle-haystack/scripts/round4_harness_refutation.py --harness <this-harness>"
+  executor: "python3 $HOME/Developer/needle-haystack/scripts/round4_harness_refutation.py --harness <this-harness>"
   invariant: "Every declared gate must have a requirement and a proof, and an isolated removal of every gate proof must be rejected."
   planted_failure: "For every gate, replace its proof key with proof_removed in a scratch copy; the verifier must exit non-zero for that copy."
   certification: "The live harness is accepted only after the verifier completes every per-gate planted failure with zero misses."
