@@ -1,4 +1,6 @@
 # RIG Marketplace
+<p align="center"><img src="assets/rig-marketplace-hero.png" alt="RIG Marketplace governed agent pack catalog" width="100%" /></p>
+
 <p align="center"><img src="docs/rig-marketplace-demo.gif" alt="demo" width="720" /></p>
 
 Governed prime-agent packs. Every agent: RLM contract, reward environment, executable done-test, sealed ProofPacket.
