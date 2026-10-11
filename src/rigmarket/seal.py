@@ -60,7 +60,7 @@ def _sign(key: bytes, body: dict) -> str:
 def check_run_document(run: dict) -> None:
     if not isinstance(run, dict) or run.get("schema") != RUN_SCHEMA:
         raise SealError(f"not a {RUN_SCHEMA} document")
-    for key in ("pack", "version", "manifest_sha256", "pack_tree_sha256", "status", "results"):
+    for key in ("pack", "version", "manifest_sha256", "pack_tree_sha256", "isolation", "status", "results"):
         if key not in run:
             raise SealError(f"run document missing {key!r}")
     results = run["results"]

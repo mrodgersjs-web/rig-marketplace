@@ -50,28 +50,70 @@ Schema: [`src/rigmarket/pack.schema.json`](src/rigmarket/pack.schema.json) (JSON
 | `name`, `version` | must match the directory name and `.claude-plugin/plugin.json` |
 | `contract.provides` | number of agents, harnesses and skills; rejected if it differs from the files |
 | `contract.agent_sections` | headings every agent must contain (the bundled packs require `## Operating contract` and `## RLM Harness (prime)`) |
-| `permissions.commands` | allowed `argv[0]` for done-tests |
-| `permissions.env` | environment variables passed through; all others are dropped |
+| `permissions.commands` | executables done-tests may start, capped by the built-in policy (below) |
+| `permissions.env` | environment variables passed through; all others are dropped. `PATH`, `HOME`, `TMPDIR` and loader variables cannot be listed |
 | `permissions.writes_pack` | if false, a done-test that changes any pack file fails |
-| `permissions.network` | declared only; not enforced (see Roadmap) |
 | `done_tests[]` | `id`, `run` (argv list), optional `expect_exit`, `expect_stdout_contains`, `timeout_s` |
 | `includes` | other packs whose files this pack must carry unchanged |
 
 Placeholders in `run`: `{python}` (the interpreter running rigmarket) and `{pack}` (the temp copy of the pack).
-Any other `{name}` placeholder, a command outside `permissions.commands`, duplicate test ids, and `..`
-in a path are rejected at validation time.
+Any other `{name}` placeholder, duplicate test ids, and `..` in a path are rejected at validation time.
+
+There is no network permission. Network access is not something a pack can ask for; see
+[Containment](#containment) for when it is denied.
+
+### Command policy
+
+`src/rigmarket/policy.py` caps what a pack may declare. `rigmarket validate` (and therefore `rigmarket test`)
+rejects a pack that breaks it, and the runner checks it again right before starting each process.
+
+- The only executable allowed today is `{python}`. Anything else is rejected as "not in the built-in allowlist".
+- Shells, inline-code interpreters, file removers and movers, privilege tools and network clients (`sh`, `bash`,
+  `env`, `perl`, `node`, `rm`, `mv`, `dd`, `find`, `sudo`, `curl`, `wget`, `nc`, `ssh`, `git`, `pip` and others)
+  are rejected by name as "forbidden by the built-in policy", including as absolute paths such as `/bin/rm`.
+- `{python}` may run only `-m rigmarket.checks ...` or a `.py` file inside the pack (`{pack}/...`).
+  Inline code (`-c`) and other interpreter options are rejected.
 
 ## What a done-test run records
 
-`rigmarket test` validates the pack first and refuses to run an invalid one. It copies the pack to a temp
-directory, sets `HOME` to a temp directory, passes only `PATH` and the declared variables, and runs each
-test with its timeout. For each test it records the argv, exit code, expected exit code, SHA-256 of stdout
+`rigmarket test` validates the pack first and refuses to run an invalid one. It then runs each test with
+its timeout inside a private run directory (see Containment). For each test it records the argv, exit code, expected exit code, SHA-256 of stdout
 and of stderr, the last 2,000 characters of output, duration in milliseconds, and the reasons it failed.
 The run document also carries the SHA-256 of `pack.json` and a hash of every file in the pack.
 
 The bundled done-tests use `python -m rigmarket.checks` to check agent frontmatter and sections, harness
 structure (ids, gates with a requirement and a proof, failure protocol naming only declared gates) and skill
 frontmatter, and they execute each bundled `run.py` meta-skill, including cases where it must fail closed.
+
+## Containment
+
+A pack script is still Python: it can try anything the user running `rigmarket test` can do. The runner
+limits and checks that, and records what it enforced in the run document's `isolation` field.
+
+Always, on every host:
+
+- The run directory holds the pack copy (the working directory), `HOME`, `TMPDIR`, a `bin/` directory and a
+  canary directory. `PATH` is only that `bin/`, which links `python`/`python3` to the running interpreter, so
+  `rm`, `sh` or `curl` are not found by name.
+- Before and after each test the runner snapshots the canary directory, the source pack and the catalog root
+  (the directory with `.claude-plugin/marketplace.json`, excluding `.git`, virtualenvs and caches). Any change
+  fails the test with "changed files outside the run directory", and the canary is restored for the next test.
+
+Where the OS allows it, the process is also wrapped:
+
+| host | backend | network | writes outside the run directory |
+|---|---|---|---|
+| macOS | `sandbox-exec` profile | denied | denied |
+| Linux with unprivileged user namespaces | `unshare --user --net` | denied | detected by snapshot only |
+| anything else (or nested inside another sandbox) | none | **not enforced** | detected by snapshot only |
+
+`isolation.network` is `denied` or `not-enforced`; trust that field, not this README, for a given packet.
+Set `RIGMARKET_ISOLATION=none` to turn the wrapper off.
+
+Limits: the snapshot only covers the canary, the source pack and the catalog root. Without `sandbox-exec`, a
+script that writes somewhere else (for example your real home directory by absolute path) is not detected,
+and without a backend it can use the network. Run packs you do not trust only on a host where `isolation`
+reports `sandbox-exec`, or in a throwaway VM or container.
 
 ## Evidence packets (`rig.proofpacket.v1`)
 
@@ -86,6 +128,11 @@ status disagrees with their results.
 - edited in any field after sealing (`bad-signature`), even if the edit recomputes the inner digest
 - a record of failing done-tests (`failed-tests`), unless `--allow-fail` is given
 - with `--check-pack`: older than the current pack files (`pack-changed`, `manifest-changed`)
+
+What a packet proves, and what it does not: the signature shows that someone holding `RIG_SEAL_KEY` sealed
+this exact run document and that nobody edited it since. It does not prove the tests ran. A key holder can
+write a run document by hand and seal it; `seal` only refuses documents that are internally inconsistent.
+Treat the key as the trust anchor and keep it to the machine or CI job that runs the tests.
 
 CI generates a fresh key per run, seals and verifies every bundled pack, checks that a tampered packet is
 rejected, and uploads the packets as a build artifact.
@@ -114,7 +161,9 @@ pytest -q
 
 - Per-agent done-tests and reward environments. Agents reference a prime-agent environment path that lives
   outside this repo; today the done-tests are per pack.
-- Network isolation for done-tests. `permissions.network` is recorded but not enforced.
+- Network denial and write denial on hosts without `sandbox-exec` or user namespaces (for example a container
+  backend).
+- Run attestation: binding a packet to the runner that produced it, so a key holder cannot seal a hand-written run.
 - Public-key signatures so a verifier does not need the sealing secret.
 - `mcp/server.py` (stdio MCP server) depends on external RIG tooling and is not exercised by CI.
 - Paid distribution. No payment or entitlement code is in this repo.

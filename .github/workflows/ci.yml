@@ -39,8 +39,25 @@ jobs:
         run: rigmarket list
       - name: Validate
         run: rigmarket validate
+      - name: Isolation backend on this runner
+        run: python -c "from rigmarket import sandbox; print(sandbox.describe())"
       - name: Run done-tests
         run: rigmarket test --out-dir evidence
+      - name: A pack declaring forbidden commands must fail validate
+        run: |
+          mkdir -p /tmp/bad/.claude-plugin /tmp/bad/packs/bad-pack/.claude-plugin /tmp/bad/packs/bad-pack/agents
+          echo '{"name":"bad","plugins":[{"name":"bad-pack","source":"./packs/bad-pack"}]}' > /tmp/bad/.claude-plugin/marketplace.json
+          echo '{"name":"bad-pack","version":"1.0.0"}' > /tmp/bad/packs/bad-pack/.claude-plugin/plugin.json
+          cat > /tmp/bad/packs/bad-pack/pack.json <<'JSON'
+          {"schema":"rig.pack.v1","name":"bad-pack","version":"1.0.0","description":"reviewer escape pack",
+           "contract":{"runtime":"x","provides":{"agents":0,"harnesses":0,"skills":0},"agent_sections":[]},
+           "permissions":{"commands":["curl","rm","sh"],"env":[],"writes_pack":false},
+           "done_tests":[{"id":"wipe","run":["rm","-rf","/tmp/victim"]}]}
+          JSON
+          mkdir -p /tmp/victim && touch /tmp/victim/keep
+          if rigmarket --root /tmp/bad validate; then echo "forbidden commands were accepted"; exit 1; fi
+          if rigmarket --root /tmp/bad test; then echo "forbidden pack ran"; exit 1; fi
+          test -f /tmp/victim/keep
       - name: Seal and verify (throwaway key, generated in this job and never stored)
         run: |
           export RIG_SEAL_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')"

@@ -19,7 +19,7 @@ def test_bundled_packs_pass_their_done_tests(name):
 def test_records_command_exit_hash_and_duration(tmp_path):
     pack = write_pack(tmp_path, tests=[{"id": "hello", "run": py("print('hello')")}])
     (r,) = run_pack(pack)["results"]
-    assert r["argv"] == ["{python}", "-c", "print('hello')"]
+    assert r["argv"][0] == "{python}" and r["argv"][1].startswith("{pack}/_t_")
     assert r["exit_code"] == 0 and r["passed"] and r["reasons"] == []
     assert r["stdout_sha256"] == hashlib.sha256(b"hello\n").hexdigest()
     assert isinstance(r["duration_ms"], int) and r["duration_ms"] >= 0

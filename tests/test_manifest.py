@@ -85,9 +85,9 @@ def test_rejects_plugin_json_version_drift(tmp_path):
     assert "plugin.json version" in errors(pack)
 
 
-def test_rejects_command_outside_permissions(tmp_path):
+def test_rejects_forbidden_command_even_if_not_declared(tmp_path):
     pack = write_pack(tmp_path, tests=[{"id": "x", "run": ["bash", "-c", "true"]}])
-    assert "'bash' not in permissions.commands" in errors(pack)
+    assert "command 'bash' is forbidden by the built-in policy" in errors(pack)
 
 
 def test_rejects_unknown_placeholder(tmp_path):
@@ -96,7 +96,7 @@ def test_rejects_unknown_placeholder(tmp_path):
 
 
 def test_rejects_duplicate_test_ids(tmp_path):
-    t = {"id": "x", "run": ["{python}", "-c", "pass"]}
+    t = {"id": "x", "run": ["{python}", "-m", "rigmarket.checks", "agents", "{pack}/agents"]}
     pack = write_pack(tmp_path, tests=[t, t])
     assert "duplicate done-test id 'x'" in errors(pack)
 

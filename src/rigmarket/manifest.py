@@ -10,8 +10,12 @@ from pathlib import Path
 
 import jsonschema
 
+from .policy import declared_command_errors, run_errors
+
 MANIFEST_NAME = "pack.json"
 PLACEHOLDERS = {"python", "pack"}
+RESERVED_ENV = {"PATH", "HOME", "TMPDIR", "PYTHONPATH", "PYTHONHOME", "PYTHONSTARTUP", "LD_PRELOAD",
+                "DYLD_INSERT_LIBRARIES", "DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH"}
 _PLACEHOLDER_RE = re.compile(r"\{([A-Za-z_][A-Za-z0-9_]*)\}")
 
 
@@ -91,7 +95,12 @@ def semantic_errors(manifest: dict, pack_dir: Path) -> list[str]:
         if declared.get(kind) != n:
             errs.append(f"contract.provides.{kind} declares {declared.get(kind)} but the pack has {n}")
 
-    allowed = set(manifest.get("permissions", {}).get("commands", []))
+    perms = manifest.get("permissions", {})
+    declared_cmds = list(perms.get("commands", []))
+    errs.extend(declared_command_errors(declared_cmds))
+    for name in perms.get("env", []):
+        if name in RESERVED_ENV:
+            errs.append(f"permissions.env: {name} is set by the runner and cannot be passed through")
     seen: set[str] = set()
     for test in manifest.get("done_tests", []):
         tid = test.get("id", "?")
@@ -99,8 +108,8 @@ def semantic_errors(manifest: dict, pack_dir: Path) -> list[str]:
             errs.append(f"duplicate done-test id {tid!r}")
         seen.add(tid)
         run = test.get("run") or []
-        if run and run[0] not in allowed:
-            errs.append(f"done-test {tid!r}: command {run[0]!r} not in permissions.commands")
+        for problem in run_errors(run, declared_cmds):
+            errs.append(f"done-test {tid!r}: {problem}")
         for arg in run:
             for name in _PLACEHOLDER_RE.findall(arg):
                 if name not in PLACEHOLDERS:

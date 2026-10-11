@@ -21,8 +21,7 @@
       "{python}"
     ],
     "env": [],
-    "writes_pack": false,
-    "network": false
+    "writes_pack": false
   },
   "done_tests": [
     {

@@ -1,3 +1,4 @@
+import hashlib
 import json
 import secrets
 import sys
@@ -42,7 +43,7 @@ def write_pack(root: Path, name: str = "demo-pack", tests: list | None = None, *
             "provides": {"agents": 1, "harnesses": 0, "skills": 0},
             "agent_sections": ["## Operating contract", "## RLM Harness (prime)"],
         },
-        "permissions": {"commands": ["{python}"], "env": [], "writes_pack": False, "network": False},
+        "permissions": {"commands": ["{python}"], "env": [], "writes_pack": False},
         "done_tests": tests or [
             {
                 "id": "agents-contract",
@@ -52,6 +53,10 @@ def write_pack(root: Path, name: str = "demo-pack", tests: list | None = None, *
             }
         ],
     }
+    for test in manifest["done_tests"]:
+        for arg in test["run"]:
+            if arg in SCRIPTS:
+                (pack / arg.removeprefix("{pack}/")).write_text(SCRIPTS[arg])
     manifest.update(overrides)
     (pack / "pack.json").write_text(json.dumps(manifest, indent=2))
     catalog = root / ".claude-plugin" / "marketplace.json"
@@ -62,8 +67,14 @@ def write_pack(root: Path, name: str = "demo-pack", tests: list | None = None, *
     return pack
 
 
+SCRIPTS: dict[str, str] = {}
+
+
 def py(code: str) -> list[str]:
-    return ["{python}", "-c", code]
+    """A done-test that runs `code` as a script file inside the pack (inline -c is not allowed)."""
+    arg = "{pack}/_t_" + hashlib.sha256(code.encode()).hexdigest()[:12] + ".py"
+    SCRIPTS[arg] = code + "\n"
+    return ["{python}", arg]
 
 
 @pytest.fixture
