@@ -48,6 +48,8 @@ def run_errors(run: list[str], declared: list[str]) -> list[str]:
     """Problems with one done-test argv (before placeholder substitution)."""
     if not run:
         return ["empty command"]
+    if any(not isinstance(a, str) or "\0" in a for a in run):
+        return ["arguments must be strings without NUL bytes"]
     cmd = run[0]
     base = PurePosixPath(cmd).name
     if base in FORBIDDEN or cmd in FORBIDDEN:

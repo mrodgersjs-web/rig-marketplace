@@ -1,12 +1,30 @@
 import hashlib
 import json
+import os
 import secrets
 import sys
 from pathlib import Path
 
 import pytest
 
+from rigmarket import sandbox
+from rigmarket.runner import run_pack
+
 REPO = Path(__file__).resolve().parents[1]
+# True only where an OS backend really denies network and writes outside the run dir (probed).
+ENFORCED = sandbox.describe()["enforced"]
+# On such hosts the suite exercises the real default flow. Elsewhere the default refuses to run pack
+# code, so tests of the runner's own logic opt in explicitly; the refusal itself is tested separately.
+UNCONTAINED_FLAG = [] if ENFORCED else ["--allow-uncontained"]
+if os.environ.get("RIGMARKET_REQUIRE_ENFORCED") == "1" and not ENFORCED:
+    raise RuntimeError(f"RIGMARKET_REQUIRE_ENFORCED=1 but containment is not enforced: {sandbox.describe()}")
+
+
+def run_any(pack, **kw):
+    """run_pack with the default flow where containment is enforced, explicit opt-in elsewhere."""
+    return run_pack(pack, allow_uncontained=not ENFORCED, **kw)
+
+
 BUNDLED = ["rig-engineering-pack", "rig-content-pack", "rig-design-pack", "rig-gtm-pack", "rig-prime-fleet"]
 
 AGENT = """---

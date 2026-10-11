@@ -41,8 +41,14 @@ jobs:
         run: rigmarket validate
       - name: Isolation backend on this runner
         run: python -c "from rigmarket import sandbox; print(sandbox.describe())"
-      - name: Run done-tests
-        run: rigmarket test --out-dir evidence
+      - name: Default run must refuse when containment is not enforced
+        run: |
+          python -c "from rigmarket import sandbox; assert not sandbox.describe()['enforced']"
+          set +e; rigmarket test > refused.txt; code=$?; set -e
+          cat refused.txt
+          test "$code" = 3 && grep -q "REFUSED" refused.txt && test ! -d evidence
+      - name: Run done-tests (explicit opt-in on this uncontained runner)
+        run: rigmarket test --allow-uncontained --out-dir evidence
       - name: A pack declaring forbidden commands must fail validate
         run: |
           mkdir -p /tmp/bad/.claude-plugin /tmp/bad/packs/bad-pack/.claude-plugin /tmp/bad/packs/bad-pack/agents
@@ -62,7 +68,11 @@ jobs:
         run: |
           export RIG_SEAL_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')"
           for run in evidence/*.run.json; do rigmarket seal "$run"; done
-          rigmarket verify --check-pack evidence/*.packet.json
+          # Packets from an uncontained run are rejected unless the verifier opts in.
+          if rigmarket verify evidence/rig-gtm-pack.packet.json; then
+            echo "uncontained packet was accepted by default"; exit 1
+          fi
+          rigmarket verify --check-pack --allow-uncontained evidence/*.packet.json
           # A tampered packet must be rejected.
           python - <<'PY'
           import json
@@ -71,10 +81,53 @@ jobs:
           d["run"]["results"][0]["exit_code"] = 1
           json.dump(d, open("evidence/tampered.packet.json", "w"))
           PY
-          if rigmarket verify evidence/tampered.packet.json; then
+          if rigmarket verify --allow-uncontained evidence/tampered.packet.json; then
             echo "tampered packet was accepted"; exit 1
           fi
       - uses: actions/upload-artifact@v4
         with:
           name: evidence-packets
           path: evidence/
+
+  macos-enforced:
+    # macOS runners have sandbox-exec: the default flow must run under enforced containment, every
+    # containment test must run (RIGMARKET_REQUIRE_ENFORCED=1 turns a missing sandbox into an error).
+    runs-on: macos-latest
+    needs: test
+    env:
+      RIGMARKET_REQUIRE_ENFORCED: "1"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: python -m pip install ".[dev]"
+      - name: Isolation backend on this runner
+        run: python -c "from rigmarket import sandbox; d = sandbox.describe(); print(d); assert d['enforced']"
+      - name: Tests (no containment test may skip)
+        run: pytest -q -rs
+      - name: Default flow end to end
+        run: |
+          export RIG_SEAL_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')"
+          rigmarket test --out-dir evidence
+          for run in evidence/*.run.json; do rigmarket seal "$run"; done
+          rigmarket verify --check-pack evidence/*.packet.json
+      - name: In-pack escape script is contained
+        run: |
+          mkdir -p /tmp/esc/.claude-plugin /tmp/esc/packs/esc-pack/.claude-plugin
+          echo '{"name":"esc","plugins":[{"name":"esc-pack","source":"./packs/esc-pack"}]}' > /tmp/esc/.claude-plugin/marketplace.json
+          echo '{"name":"esc-pack","version":"1.0.0"}' > /tmp/esc/packs/esc-pack/.claude-plugin/plugin.json
+          cat > /tmp/esc/packs/esc-pack/pack.json <<'JSON'
+          {"schema":"rig.pack.v1","name":"esc-pack","version":"1.0.0","description":"escape attempt",
+           "contract":{"runtime":"x","provides":{"agents":0,"harnesses":0,"skills":0},"agent_sections":[]},
+           "permissions":{"commands":["{python}"],"env":[],"writes_pack":false},
+           "done_tests":[{"id":"esc","run":["{python}","{pack}/esc.py"]}]}
+          JSON
+          cat > /tmp/esc/packs/esc-pack/esc.py <<'PY'
+          import subprocess
+          open("/tmp/rigmp_esc_abs.txt", "w").write("escaped")
+          subprocess.run(["/bin/sh", "-c", "echo shell > /tmp/rigmp_esc_sh.txt"])
+          PY
+          if rigmarket --root /tmp/esc test; then echo "escape pack passed"; exit 1; fi
+          test ! -e /tmp/rigmp_esc_abs.txt && test ! -e /tmp/rigmp_esc_sh.txt

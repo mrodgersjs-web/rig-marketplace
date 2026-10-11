@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from dataclasses import dataclass, field
 from importlib import resources
@@ -16,6 +17,7 @@ MANIFEST_NAME = "pack.json"
 PLACEHOLDERS = {"python", "pack"}
 RESERVED_ENV = {"PATH", "HOME", "TMPDIR", "PYTHONPATH", "PYTHONHOME", "PYTHONSTARTUP", "LD_PRELOAD",
                 "DYLD_INSERT_LIBRARIES", "DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH"}
+RESERVED_ENV_PREFIXES = ("PYTHON", "LD_", "DYLD_")
 _PLACEHOLDER_RE = re.compile(r"\{([A-Za-z_][A-Za-z0-9_]*)\}")
 
 
@@ -101,6 +103,9 @@ def semantic_errors(manifest: dict, pack_dir: Path) -> list[str]:
     for name in perms.get("env", []):
         if name in RESERVED_ENV:
             errs.append(f"permissions.env: {name} is set by the runner and cannot be passed through")
+        elif name.startswith(RESERVED_ENV_PREFIXES):
+            errs.append(f"permissions.env: {name} changes how the interpreter or loader starts and "
+                        "cannot be passed through")
     seen: set[str] = set()
     for test in manifest.get("done_tests", []):
         tid = test.get("id", "?")
@@ -119,9 +124,27 @@ def semantic_errors(manifest: dict, pack_dir: Path) -> list[str]:
     return errs
 
 
+def symlink_errors(pack_dir: Path) -> list[str]:
+    """Packs may not contain symlinks: they can point outside the pack and are followed by tools."""
+    pack_dir = Path(pack_dir)
+    errs = []
+    if pack_dir.is_symlink():
+        errs.append(f"pack directory {pack_dir.name!r} is a symlink")
+        return errs
+    for dirpath, dirnames, filenames in os.walk(pack_dir, followlinks=False):
+        for name in sorted([*dirnames, *filenames]):
+            p = Path(dirpath) / name
+            if p.is_symlink():
+                errs.append(f"symlinks are not allowed in a pack: {p.relative_to(pack_dir).as_posix()}")
+    return errs
+
+
 def validate_pack(pack_dir: Path) -> dict:
     """Return the manifest if it is valid, else raise ManifestError with every problem found."""
     pack_dir = Path(pack_dir)
+    links = symlink_errors(pack_dir)
+    if links:  # checked first: nothing below may read through a link
+        raise ManifestError(pack_dir.name, links)
     manifest = load_manifest(pack_dir)
     errs = schema_errors(manifest)
     if not errs:

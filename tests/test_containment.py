@@ -3,14 +3,14 @@
 import json
 
 import pytest
-from conftest import py, write_pack
+from conftest import py, run_any, write_pack
 
 from rigmarket import sandbox
 from rigmarket.runner import run_pack
 
 
 def only_result(pack):
-    run = run_pack(pack)
+    run = run_any(pack)
     assert len(run["results"]) == 1
     return run, run["results"][0]
 
@@ -63,7 +63,7 @@ def test_canary_is_restored_between_tests(tmp_path):
     wipe = py("import shutil, pathlib; shutil.rmtree(pathlib.Path.cwd().parent / 'canary', ignore_errors=True)")
     canary = "pathlib.Path.cwd().parent / 'canary' / 'canary.txt'"
     check = py(f"import pathlib, sys; sys.exit(0 if ({canary}).exists() else 9)")
-    run = run_pack(write_pack(tmp_path, tests=[{"id": "wipe", "run": wipe}, {"id": "check", "run": check}]))
+    run = run_any(write_pack(tmp_path, tests=[{"id": "wipe", "run": wipe}, {"id": "check", "run": check}]))
     assert [r["passed"] for r in run["results"]] == [False, True]
 
 
@@ -93,12 +93,14 @@ def test_network_is_denied_when_a_backend_is_available(tmp_path):
 
 
 def test_isolation_is_recorded_truthfully(tmp_path, monkeypatch):
-    sandbox.backend.cache_clear()
+    sandbox.probe.cache_clear()
     monkeypatch.setenv("RIGMARKET_ISOLATION", "none")
     try:
-        run, _ = only_result(write_pack(tmp_path, tests=[{"id": "ok", "run": py("print(1)")}]))
-        assert run["isolation"] == {
-            "backend": "none", "network": "not-enforced", "writes_outside_run_dir": "detected-by-snapshot",
-        }
+        run = run_pack(write_pack(tmp_path, tests=[{"id": "ok", "run": py("print(1)")}]), allow_uncontained=True)
+        iso = run["isolation"]
+        assert iso["backend"] == "none" and iso["enforced"] is False
+        assert iso["network"] == "not-enforced" and iso["writes_outside_run_dir"] == "not-enforced"
+        assert "not a sandbox" in iso["snapshot_scope"]
+        assert "detected-by-snapshot" not in json.dumps(run)
     finally:
-        sandbox.backend.cache_clear()
+        sandbox.probe.cache_clear()

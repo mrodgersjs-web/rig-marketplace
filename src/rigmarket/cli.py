@@ -7,13 +7,13 @@ import json
 import sys
 from pathlib import Path
 
-from . import __version__
-from .catalog import find_root, listing, pack_dirs, validate_catalog
+from . import __version__, sandbox
+from .catalog import find_root, listing, pack_dirs, source_error, validate_catalog
 from .manifest import ManifestError
-from .runner import run_pack
+from .runner import ContainmentUnavailable, run_pack
 from .seal import SealError, SealKeyError, VerifyError, load_key, seal, verify
 
-OK, FAIL, USAGE = 0, 1, 2
+OK, FAIL, USAGE, REFUSED = 0, 1, 2, 3
 
 
 def _root(args) -> Path:
@@ -26,6 +26,9 @@ def _resolve(root: Path, name_or_path: str) -> Path:
         return p.resolve()
     packs = pack_dirs(root)
     if name_or_path in packs:
+        problem = source_error(root, name_or_path)
+        if problem:
+            raise FileNotFoundError(f"{name_or_path}: {problem}")
         return packs[name_or_path]
     raise FileNotFoundError(f"no pack named {name_or_path!r} and no pack.json at that path")
 
@@ -74,11 +77,21 @@ def cmd_validate(args) -> int:
 def cmd_test(args) -> int:
     root = _root(args)
     names = args.packs or list(pack_dirs(root))
-    failed = 0
+    failed = refused = 0
     out_dir = Path(args.out_dir) if args.out_dir else None
+    iso = sandbox.describe()
+    print(f"isolation: backend={iso['backend']} enforced={str(iso['enforced']).lower()} "
+          f"network={iso['network']} writes_outside_run_dir={iso['writes_outside_run_dir']} ({iso['probe']})")
+    if not iso["enforced"] and args.allow_uncontained:
+        print("WARNING: --allow-uncontained: pack scripts can write anywhere you can and use the network; "
+              "run documents are marked enforced=false and verify rejects them by default.")
     for name in names:
         try:
-            run = run_pack(_resolve(root, name), only=args.only)
+            run = run_pack(_resolve(root, name), only=args.only, allow_uncontained=args.allow_uncontained)
+        except ContainmentUnavailable as e:
+            print(f"REFUSED {name}: {e}")
+            refused += 1
+            continue
         except ManifestError as e:
             print(f"FAIL {name}: invalid manifest")
             for err in e.errors:
@@ -97,7 +110,9 @@ def cmd_test(args) -> int:
             _write_json(run, str(out_dir / f"{run['pack']}.run.json"))
         elif len(names) == 1 and args.json:
             _write_json(run, None)
-    return FAIL if failed else OK
+    if refused and not failed:
+        print(f"REFUSED: {refused} pack(s) not run; no pack code was executed for them")
+    return FAIL if failed else REFUSED if refused else OK
 
 
 def cmd_seal(args) -> int:
@@ -138,7 +153,8 @@ def cmd_verify(args) -> int:
             name = (packet.get("run") or {}).get("pack", "")
             pack_dir = pack_dirs(root).get(name)
         try:
-            run = verify(packet, key, pack_dir=pack_dir, allow_fail=args.allow_fail)
+            run = verify(packet, key, pack_dir=pack_dir, allow_fail=args.allow_fail,
+                         allow_uncontained=args.allow_uncontained)
         except VerifyError as e:
             print(f"REJECT {path}: {e}")
             bad += 1
@@ -167,6 +183,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--only", action="append", help="run only this done-test id (repeatable)")
     p.add_argument("--out-dir", help="write <pack>.run.json files here")
     p.add_argument("--json", action="store_true", help="print the run document (single pack)")
+    p.add_argument("--allow-uncontained", action="store_true",
+                   help="run even when no OS sandbox is enforced (only for packs you already trust)")
     p.set_defaults(func=cmd_test)
 
     p = sub.add_parser("seal", help="sign a run document into an evidence packet (key: $RIG_SEAL_KEY)")
@@ -179,6 +197,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--check-pack", action="store_true",
                    help="also reject if the pack's files changed since sealing")
     p.add_argument("--allow-fail", action="store_true", help="accept authentic packets of failing runs")
+    p.add_argument("--allow-uncontained", action="store_true",
+                   help="accept packets of runs made without enforced OS containment")
     p.set_defaults(func=cmd_verify)
     return ap
 

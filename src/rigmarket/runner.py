@@ -19,6 +19,19 @@ from .policy import run_errors
 
 RUN_SCHEMA = "rig.run.v1"
 DEFAULT_TIMEOUT_S = 120
+
+
+class ContainmentUnavailable(Exception):
+    """Refused to run done-tests: no OS backend enforces network and write denial on this host."""
+
+    def __init__(self, isolation: dict):
+        self.isolation = isolation
+        super().__init__(
+            f"refusing to run pack code: isolation backend {isolation['backend']!r} is not enforced "
+            f"({isolation['probe']}). A pack script could write anywhere you can and use the network. "
+            "Run on a host where `sandbox-exec` works (macOS, not nested in another sandbox), or pass "
+            "--allow-uncontained only for packs you already trust."
+        )
 TAIL_CHARS = 2000
 
 
@@ -138,10 +151,17 @@ def _run_one(test: dict, manifest: dict, run_dir: Path, pack_copy: Path, source_
     return record
 
 
-def run_pack(pack_dir: Path, only: list[str] | None = None) -> dict:
-    """Validate the pack, copy it to a temp dir, run each done-test there, return a run document."""
+def run_pack(pack_dir: Path, only: list[str] | None = None, allow_uncontained: bool = False) -> dict:
+    """Validate the pack, copy it to a temp dir, run each done-test there, return a run document.
+
+    Raises ContainmentUnavailable (before any pack code runs) when the host cannot enforce
+    containment, unless allow_uncontained is true.
+    """
     pack_dir = Path(pack_dir).resolve()
     manifest = validate_pack(pack_dir)
+    isolation = sandbox.describe()
+    if not isolation["enforced"] and not allow_uncontained:
+        raise ContainmentUnavailable(isolation)
     source_tree = tree_sha256(pack_dir)
     tests = manifest["done_tests"]
     if only:
@@ -158,14 +178,14 @@ def run_pack(pack_dir: Path, only: list[str] | None = None) -> dict:
         sandbox.make_path_dir(run_dir / "bin", {"python": sys.executable, "python3": sys.executable})
         sandbox.make_canary(run_dir / "canary")
         pack_copy = run_dir / pack_dir.name
-        shutil.copytree(pack_dir, pack_copy, ignore=shutil.ignore_patterns(*IGNORED_DIRS))
+        shutil.copytree(pack_dir, pack_copy, symlinks=True, ignore=shutil.ignore_patterns(*IGNORED_DIRS))
         watch = _Watch(run_dir, pack_dir)
         for test in tests:
             results.append(_run_one(test, manifest, run_dir, pack_copy, source_tree, watch))
             if not manifest["permissions"]["writes_pack"] and tree_sha256(pack_copy) != source_tree:
                 # Restore a clean copy so one bad test cannot poison the next.
                 shutil.rmtree(pack_copy)
-                shutil.copytree(pack_dir, pack_copy, ignore=shutil.ignore_patterns(*IGNORED_DIRS))
+                shutil.copytree(pack_dir, pack_copy, symlinks=True, ignore=shutil.ignore_patterns(*IGNORED_DIRS))
     return {
         "schema": RUN_SCHEMA,
         "pack": manifest["name"],
@@ -173,7 +193,7 @@ def run_pack(pack_dir: Path, only: list[str] | None = None) -> dict:
         "manifest_sha256": sha256_file(pack_dir / MANIFEST_NAME),
         "pack_tree_sha256": source_tree,
         "runner": {"python": platform.python_version(), "platform": platform.system().lower()},
-        "isolation": sandbox.describe(),
+        "isolation": isolation,
         "started_at": started,
         "finished_at": _now(),
         "status": "pass" if results and all(r["passed"] for r in results) else "fail",

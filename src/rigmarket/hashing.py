@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
 
 IGNORED_DIRS = {"__pycache__", ".pytest_cache"}
@@ -23,14 +24,23 @@ def canonical_json(obj: object) -> bytes:
 
 
 def tree_files(root: Path) -> list[Path]:
+    """Every file and symlink under root. Symlinked directories are listed, never descended into."""
     root = Path(root)
     out = []
-    for p in root.rglob("*"):
-        if any(part in IGNORED_DIRS for part in p.relative_to(root).parts):
-            continue
-        if p.is_file() or p.is_symlink():
-            out.append(p)
+    for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
+        d = Path(dirpath)
+        links = [n for n in dirnames if (d / n).is_symlink()]
+        dirnames[:] = [n for n in dirnames if n not in IGNORED_DIRS and n not in links]
+        out.extend(d / n for n in [*filenames, *links])
     return sorted(out, key=lambda p: p.relative_to(root).as_posix())
+
+
+def entry_sha256(path: Path) -> str:
+    """Content hash of a regular file, or of a symlink's target text (the link is not followed)."""
+    path = Path(path)
+    if path.is_symlink():
+        return sha256_bytes(b"symlink:" + os.readlink(path).encode("utf-8", "surrogateescape"))
+    return sha256_file(path)
 
 
 def tree_sha256(root: Path) -> str:
@@ -40,5 +50,5 @@ def tree_sha256(root: Path) -> str:
     for p in tree_files(root):
         rel = p.relative_to(root).as_posix()
         h.update(rel.encode("utf-8") + b"\0")
-        h.update(sha256_file(p).encode("ascii") + b"\n")
+        h.update(entry_sha256(p).encode("ascii") + b"\n")
     return h.hexdigest()

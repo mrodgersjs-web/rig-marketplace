@@ -88,7 +88,8 @@ def seal(run: dict, key: bytes) -> dict:
     return {**body, "signature": {"alg": ALG, "value": _sign(key, body)}}
 
 
-def verify(packet: dict, key: bytes, pack_dir: Path | None = None, allow_fail: bool = False) -> dict:
+def verify(packet: dict, key: bytes, pack_dir: Path | None = None, allow_fail: bool = False,
+           allow_uncontained: bool = False) -> dict:
     """Return the sealed run if the packet is authentic and passing; raise VerifyError otherwise."""
     if not isinstance(packet, dict) or packet.get("schema") != PACKET_SCHEMA:
         raise VerifyError("bad-schema", f"not a {PACKET_SCHEMA} packet")
@@ -109,6 +110,10 @@ def verify(packet: dict, key: bytes, pack_dir: Path | None = None, allow_fail: b
         check_run_document(run)
     except SealError as e:
         raise VerifyError("bad-run", str(e)) from e
+    iso = run.get("isolation")
+    if not (isinstance(iso, dict) and iso.get("enforced") is True) and not allow_uncontained:
+        backend = iso.get("backend") if isinstance(iso, dict) else None
+        raise VerifyError("uncontained", f"done-tests ran without enforced OS containment (backend {backend!r})")
     if run["status"] != "pass" and not allow_fail:
         failed = [r["id"] for r in run["results"] if not r["passed"]]
         raise VerifyError("failed-tests", f"sealed run records failing done-tests: {', '.join(failed)}")

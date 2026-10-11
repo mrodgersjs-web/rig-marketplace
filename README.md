@@ -33,13 +33,14 @@ rig-prime-fleet        1.0.0       122        32     23         25
 pip install .                      # Python 3.10+; depends on jsonschema and PyYAML
 rigmarket list                     # packs and counts
 rigmarket validate                 # schema + on-disk checks for every pack in the catalog
-rigmarket test --out-dir evidence  # run every pack's done-tests, write <pack>.run.json
+rigmarket test --out-dir evidence  # run every pack's done-tests (needs an enforced sandbox, see Containment)
 export RIG_SEAL_KEY=...            # 32+ bytes; keep it out of git
 rigmarket seal evidence/rig-gtm-pack.run.json          # -> evidence/rig-gtm-pack.packet.json
 rigmarket verify --check-pack evidence/*.packet.json
 ```
 
-Exit codes: 0 ok, 1 a check failed or a packet was rejected, 2 usage error (for example no key).
+Exit codes: 0 ok, 1 a check failed or a packet was rejected, 2 usage error (for example no key),
+3 refused: no enforced OS sandbox on this host, so no pack code was run.
 
 ## The pack format (`rig.pack.v1`)
 
@@ -87,33 +88,46 @@ frontmatter, and they execute each bundled `run.py` meta-skill, including cases 
 
 ## Containment
 
-A pack script is still Python: it can try anything the user running `rigmarket test` can do. The runner
-limits and checks that, and records what it enforced in the run document's `isolation` field.
+A pack script is still Python: it can try anything the user running `rigmarket test` can do. The command
+policy only checks `argv[0]`; a `{python}` script can still open files by absolute path, start `/bin/sh`
+through `subprocess` or use the network. Only an OS sandbox can stop that, so **`rigmarket test` refuses to run
+pack code unless an OS sandbox is enforced** and exits 3 with `REFUSED`. Every run prints the backend first:
 
-Always, on every host:
+```
+isolation: backend=sandbox-exec enforced=true network=denied writes_outside_run_dir=denied (...)
+```
+
+| host | backend | network | writes outside the run directory | `enforced` | default `rigmarket test` |
+|---|---|---|---|---|---|
+| macOS, not inside another sandbox | `sandbox-exec` profile | denied | denied | true | runs |
+| Linux with unprivileged user namespaces | `unshare --user --net` | denied | **not contained** | false | refuses |
+| anything else, or nested inside another sandbox (where `sandbox-exec` cannot start) | none | **not enforced** | **not contained** | false | refuses |
+
+`enforced` comes from a probe, not from a binary existing: the runner starts `sandbox-exec` with the run
+profile and checks that a write outside a scratch run directory is actually refused by the OS.
+
+What `enforced: true` does not cover: reads are not restricted (a script can read files your user can read
+and print them into the run document's output tail), child processes may start (their writes and network
+are denied too), and local IPC is not restricted. Run packs you do not trust in a throwaway VM or container
+as well.
+
+`rigmarket test --allow-uncontained` runs anyway on a host without an enforced sandbox. Use it only for packs
+you already trust (this repo's CI uses it on Linux runners for the bundled packs). Those runs record
+`isolation.enforced: false`, and `rigmarket verify` rejects their packets (`uncontained`) unless the verifier
+also passes `--allow-uncontained`. `RIGMARKET_ISOLATION=none` forces the backend to none (so the default
+refuses).
+
+Hygiene and tamper checks, on every host. These are **not** a sandbox and are not reported as one:
 
 - The run directory holds the pack copy (the working directory), `HOME`, `TMPDIR`, a `bin/` directory and a
   canary directory. `PATH` is only that `bin/`, which links `python`/`python3` to the running interpreter, so
-  `rm`, `sh` or `curl` are not found by name.
+  `rm`, `sh` or `curl` are not found by name (a script can still call `/bin/sh` by path).
 - Before and after each test the runner snapshots the canary directory, the source pack and the catalog root
-  (the directory with `.claude-plugin/marketplace.json`, excluding `.git`, virtualenvs and caches). Any change
-  fails the test with "changed files outside the run directory", and the canary is restored for the next test.
+  (excluding `.git`, virtualenvs and caches). Any change fails the test with "changed files outside the run
+  directory". Writes anywhere else are not seen by this check; `isolation.snapshot_scope` says so.
 
-Where the OS allows it, the process is also wrapped:
-
-| host | backend | network | writes outside the run directory |
-|---|---|---|---|
-| macOS | `sandbox-exec` profile | denied | denied |
-| Linux with unprivileged user namespaces | `unshare --user --net` | denied | detected by snapshot only |
-| anything else (or nested inside another sandbox) | none | **not enforced** | detected by snapshot only |
-
-`isolation.network` is `denied` or `not-enforced`; trust that field, not this README, for a given packet.
-Set `RIGMARKET_ISOLATION=none` to turn the wrapper off.
-
-Limits: the snapshot only covers the canary, the source pack and the catalog root. Without `sandbox-exec`, a
-script that writes somewhere else (for example your real home directory by absolute path) is not detected,
-and without a backend it can use the network. Run packs you do not trust only on a host where `isolation`
-reports `sandbox-exec`, or in a throwaway VM or container.
+Symlinks: a pack may not contain symlinks (`validate` reports "symlinks are not allowed in a pack: <path>"),
+and a catalog `source` must be a real directory inside the marketplace root. Hashing never follows a link.
 
 ## Evidence packets (`rig.proofpacket.v1`)
 
@@ -126,6 +140,8 @@ status disagrees with their results.
 - not a packet (`bad-schema`), unsigned (`unsigned`), or signed with another algorithm (`bad-alg`)
 - sealed with a different key (`wrong-key`)
 - edited in any field after sealing (`bad-signature`), even if the edit recomputes the inner digest
+- a record of a run without enforced OS containment (`uncontained`), unless `--allow-uncontained` is given;
+  packets from older versions without `isolation.enforced` count as uncontained
 - a record of failing done-tests (`failed-tests`), unless `--allow-fail` is given
 - with `--check-pack`: older than the current pack files (`pack-changed`, `manifest-changed`)
 
@@ -134,8 +150,12 @@ this exact run document and that nobody edited it since. It does not prove the t
 write a run document by hand and seal it; `seal` only refuses documents that are internally inconsistent.
 Treat the key as the trust anchor and keep it to the machine or CI job that runs the tests.
 
-CI generates a fresh key per run, seals and verifies every bundled pack, checks that a tampered packet is
-rejected, and uploads the packets as a build artifact.
+CI generates a fresh key per run. On Linux runners (no enforced sandbox) it checks that the default
+`rigmarket test` refuses, runs the bundled packs with `--allow-uncontained`, checks that `verify` rejects
+those packets by default, then seals, verifies with `--allow-uncontained`, checks that a tampered packet is
+rejected, and uploads the packets. A macOS job runs the default flow under `sandbox-exec`, runs the full test
+suite with `RIGMARKET_REQUIRE_ENFORCED=1` (no containment test may skip), and checks that an in-pack escape
+script fails without writing outside.
 
 ## Install the agents
 
@@ -161,8 +181,9 @@ pytest -q
 
 - Per-agent done-tests and reward environments. Agents reference a prime-agent environment path that lives
   outside this repo; today the done-tests are per pack.
-- Network denial and write denial on hosts without `sandbox-exec` or user namespaces (for example a container
-  backend).
+- An enforced backend for Linux (for example bubblewrap or Landlock) so Linux hosts can run untrusted packs
+  without `--allow-uncontained`; today only macOS `sandbox-exec` counts as enforced.
+- Read restriction and IPC restriction inside the macOS profile.
 - Run attestation: binding a packet to the runner that produced it, so a key holder cannot seal a hand-written run.
 - Public-key signatures so a verifier does not need the sealing secret.
 - `mcp/server.py` (stdio MCP server) depends on external RIG tooling and is not exercised by CI.

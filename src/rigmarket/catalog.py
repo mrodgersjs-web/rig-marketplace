@@ -32,6 +32,23 @@ def pack_dirs(root: Path) -> dict[str, Path]:
     return out
 
 
+def source_error(root: Path, name: str) -> str | None:
+    """A catalog source must be a real directory inside the catalog root, reached without symlinks."""
+    root = Path(root).resolve()
+    for plugin in load_catalog(root).get("plugins", []):
+        if plugin.get("name") != name:
+            continue
+        unresolved = root / plugin["source"]
+        p = unresolved
+        while p != root and p != p.parent:
+            if p.is_symlink():
+                return f"catalog source {plugin['source']!r} goes through a symlink ({p.name})"
+            p = p.parent
+        if not unresolved.resolve().is_relative_to(root):
+            return f"catalog source {plugin['source']!r} is outside the marketplace root"
+    return None
+
+
 def include_errors(manifest: dict, pack_dir: Path, packs: dict[str, Path]) -> list[str]:
     """A pack that 'includes' another must carry every one of its files byte-for-byte."""
     errs = []
@@ -65,6 +82,10 @@ def validate_catalog(root: Path, names: list[str] | None = None) -> dict[str, li
             report[name] = [f"{name!r} is not listed in {CATALOG.as_posix()}"]
             continue
         pack_dir = packs[name]
+        problem = source_error(root, name)
+        if problem:
+            report[name] = [problem]
+            continue
         if not pack_dir.is_dir():
             report[name] = [f"catalog source {pack_dir} does not exist"]
             continue

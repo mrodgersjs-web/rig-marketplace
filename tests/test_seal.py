@@ -2,21 +2,20 @@ import copy
 import json
 
 import pytest
-from conftest import py, write_pack
+from conftest import ENFORCED, py, run_any, write_pack
 
-from rigmarket.runner import run_pack
 from rigmarket.seal import SealError, SealKeyError, VerifyError, load_key, seal, verify
 
 
 @pytest.fixture
 def passing(tmp_path):
     pack = write_pack(tmp_path, tests=[{"id": "ok", "run": py("print('ok')")}])
-    return pack, run_pack(pack)
+    return pack, run_any(pack)
 
 
 def rejects(code, packet, key, **kw):
     with pytest.raises(VerifyError) as e:
-        verify(packet, key, **kw)
+        verify(packet, key, **{"allow_uncontained": True, **kw})
     assert e.value.code == code, str(e.value)
 
 
@@ -24,7 +23,7 @@ def test_round_trip(passing, key):
     pack, run = passing
     packet = seal(run, key)
     assert packet["signature"]["alg"] == "HMAC-SHA256"
-    assert verify(json.loads(json.dumps(packet)), key, pack_dir=pack) == run
+    assert verify(json.loads(json.dumps(packet)), key, pack_dir=pack, allow_uncontained=not ENFORCED) == run
 
 
 def test_key_must_be_set_and_long_enough():
@@ -95,9 +94,9 @@ def test_rejects_raw_run_document(passing, key):
 
 def test_rejects_failing_run_unless_allowed(tmp_path, key):
     pack = write_pack(tmp_path, tests=[{"id": "bad", "run": py("raise SystemExit(2)")}])
-    packet = seal(run_pack(pack), key)
+    packet = seal(run_any(pack), key)
     rejects("failed-tests", packet, key)
-    assert verify(packet, key, allow_fail=True)["status"] == "fail"
+    assert verify(packet, key, allow_fail=True, allow_uncontained=True)["status"] == "fail"
 
 
 def test_rejects_pack_changed_after_sealing(passing, key):
