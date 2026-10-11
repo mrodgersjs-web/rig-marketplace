@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mrodgersjs-web/rig-marketplace/src/rigmarket/pack.schema.json",
+  "title": "RIG plugin pack manifest (pack.json)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "name", "version", "description", "contract", "permissions", "done_tests"],
+  "properties": {
+    "schema": {"const": "rig.pack.v1"},
+    "name": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,62}$"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "description": {"type": "string", "minLength": 10},
+    "includes": {
+      "description": "Other packs whose agents, harnesses and skills this pack must carry byte-for-byte.",
+      "type": "array",
+      "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,62}$"},
+      "uniqueItems": true
+    },
+    "contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runtime", "provides", "agent_sections"],
+      "properties": {
+        "runtime": {"type": "string", "minLength": 1},
+        "doctrine": {"type": "string"},
+        "provides": {
+          "description": "Declared inventory. The validator counts the files and rejects any mismatch.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["agents", "harnesses", "skills"],
+          "properties": {
+            "agents": {"type": "integer", "minimum": 0},
+            "harnesses": {"type": "integer", "minimum": 0},
+            "skills": {"type": "integer", "minimum": 0}
+          }
+        },
+        "agent_sections": {
+          "description": "Markdown headings every agent file must contain.",
+          "type": "array",
+          "items": {"type": "string", "pattern": "^#{1,6} "},
+          "uniqueItems": true
+        }
+      }
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commands", "env", "writes_pack", "network"],
+      "properties": {
+        "commands": {
+          "description": "Allowed argv[0] values for done-tests (after placeholder substitution).",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "env": {
+          "description": "Environment variables passed through from the caller. Everything else is dropped.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[A-Z_][A-Z0-9_]*$"}
+        },
+        "writes_pack": {"type": "boolean"},
+        "network": {"type": "boolean"}
+      }
+    },
+    "done_tests": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "run"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+          "description": {"type": "string"},
+          "run": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "expect_exit": {"type": "integer", "minimum": 0, "maximum": 255},
+          "expect_stdout_contains": {"type": "array", "items": {"type": "string", "minLength": 1}},
+          "timeout_s": {"type": "number", "exclusiveMinimum": 0, "maximum": 600}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,398 @@
+{
+  "schema": "rig.pack.v1",
+  "name": "rig-prime-fleet",
+  "version": "1.0.0",
+  "description": "Every agent, harness and skill from the four packs plus the meta-agents and runnable meta-skills of the full fleet.",
+  "includes": [
+    "rig-engineering-pack",
+    "rig-content-pack",
+    "rig-design-pack",
+    "rig-gtm-pack"
+  ],
+  "contract": {
+    "runtime": "prime-agent (RLM: context held in the runtime kernel, not the prompt)",
+    "doctrine": "rig-prime-fleet",
+    "provides": {
+      "agents": 122,
+      "harnesses": 32,
+      "skills": 23
+    },
+    "agent_sections": [
+      "## Operating contract",
+      "## RLM Harness (prime)"
+    ]
+  },
+  "permissions": {
+    "commands": [
+      "{python}"
+    ],
+    "env": [],
+    "writes_pack": false,
+    "network": false
+  },
+  "done_tests": [
+    {
+      "id": "agents-contract",
+      "description": "Every agent has frontmatter (name matches file, non-empty description) and the Operating contract and RLM Harness sections.",
+      "run": [
+        "{python}",
+        "-m",
+        "rigmarket.checks",
+        "agents",
+        "{pack}/agents",
+        "--expect",
+        "122",
+        "--section",
+        "## Operating contract",
+        "--section",
+        "## RLM Harness (prime)"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ]
+    },
+    {
+      "id": "harnesses-wellformed",
+      "description": "Every harness parses, its id matches the file name, every gate has a requirement and a proof, and the failure protocol names only declared gates.",
+      "run": [
+        "{python}",
+        "-m",
+        "rigmarket.checks",
+        "harnesses",
+        "{pack}/harnesses",
+        "--expect",
+        "32"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ]
+    },
+    {
+      "id": "skills-wellformed",
+      "description": "Every SKILL.md frontmatter name matches its directory and every run.py compiles.",
+      "run": [
+        "{python}",
+        "-m",
+        "rigmarket.checks",
+        "skills",
+        "{pack}/skills",
+        "--expect",
+        "23"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ]
+    },
+    {
+      "id": "run-meta-agent-composer",
+      "description": "meta-agent-composer/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-agent-composer/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-agent-composer/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-agent-memory-binder",
+      "description": "meta-agent-memory-binder/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-agent-memory-binder/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-agent-memory-binder/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-catalog-pruner",
+      "description": "meta-catalog-pruner/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-catalog-pruner/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-catalog-pruner/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-contradiction-repairer",
+      "description": "meta-contradiction-repairer/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-contradiction-repairer/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-contradiction-repairer/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-deviation-scorer",
+      "description": "meta-deviation-scorer/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-deviation-scorer/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-deviation-scorer/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-doctrine-drift-detector",
+      "description": "meta-doctrine-drift-detector/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-doctrine-drift-detector/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-doctrine-drift-detector/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-expedition-runner",
+      "description": "meta-expedition-runner/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-expedition-runner/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-expedition-runner/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-genome-writer",
+      "description": "meta-genome-writer/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-genome-writer/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-genome-writer/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-harness-forge",
+      "description": "meta-harness-forge/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-harness-forge/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-harness-forge/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-harness-refuter",
+      "description": "meta-harness-refuter/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-harness-refuter/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-harness-refuter/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-install-verifier",
+      "description": "meta-install-verifier/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-install-verifier/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-install-verifier/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-memory-os-bridge",
+      "description": "meta-memory-os-bridge/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-memory-os-bridge/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-memory-os-bridge/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-proof-sealer",
+      "description": "meta-proof-sealer/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-proof-sealer/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-proof-sealer/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-round-amplifier",
+      "description": "meta-round-amplifier/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-round-amplifier/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-round-amplifier/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-sigma-band-router",
+      "description": "meta-sigma-band-router/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-sigma-band-router/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-sigma-band-router/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-skill-genesis",
+      "description": "meta-skill-genesis/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-skill-genesis/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-skill-genesis/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-skill-refuter",
+      "description": "meta-skill-refuter/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-skill-refuter/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-skill-refuter/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-skill-surgeon",
+      "description": "meta-skill-surgeon/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-skill-surgeon/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-skill-surgeon/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-usage-telemetry",
+      "description": "meta-usage-telemetry/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-usage-telemetry/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-usage-telemetry/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-website-publisher",
+      "description": "meta-website-publisher/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-website-publisher/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-website-publisher/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-agent-composer-rejects-missing-target",
+      "description": "meta-agent-composer/run.py fails closed when the target does not exist.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-agent-composer/run.py",
+        "--input",
+        "{\"target\": \"{pack}/no-such-file\"}"
+      ],
+      "expect_exit": 1,
+      "expect_stdout_contains": [
+        "\"status\": \"FAIL\"",
+        "target not found"
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-agent-composer-rejects-empty-input",
+      "description": "meta-agent-composer/run.py fails closed with no target.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-agent-composer/run.py",
+        "--input",
+        "{}"
+      ],
+      "expect_exit": 1,
+      "expect_stdout_contains": [
+        "contract violation"
+      ],
+      "timeout_s": 30
+    }
+  ]
+}

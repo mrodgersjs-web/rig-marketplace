@@ -1,0 +1,65 @@
+{
+  "schema": "rig.pack.v1",
+  "name": "rig-content-pack",
+  "version": "1.0.0",
+  "description": "Prime content agents: long-form, short-form and editorial ops, with content-session goal harnesses.",
+  "contract": {
+    "runtime": "prime-agent (RLM: context held in the runtime kernel, not the prompt)",
+    "doctrine": "rig-content",
+    "provides": {
+      "agents": 25,
+      "harnesses": 8,
+      "skills": 0
+    },
+    "agent_sections": [
+      "## Operating contract",
+      "## RLM Harness (prime)"
+    ]
+  },
+  "permissions": {
+    "commands": [
+      "{python}"
+    ],
+    "env": [],
+    "writes_pack": false,
+    "network": false
+  },
+  "done_tests": [
+    {
+      "id": "agents-contract",
+      "description": "Every agent has frontmatter (name matches file, non-empty description) and the Operating contract and RLM Harness sections.",
+      "run": [
+        "{python}",
+        "-m",
+        "rigmarket.checks",
+        "agents",
+        "{pack}/agents",
+        "--expect",
+        "25",
+        "--section",
+        "## Operating contract",
+        "--section",
+        "## RLM Harness (prime)"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ]
+    },
+    {
+      "id": "harnesses-wellformed",
+      "description": "Every harness parses, its id matches the file name, every gate has a requirement and a proof, and the failure protocol names only declared gates.",
+      "run": [
+        "{python}",
+        "-m",
+        "rigmarket.checks",
+        "harnesses",
+        "{pack}/harnesses",
+        "--expect",
+        "8"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ]
+    }
+  ]
+}

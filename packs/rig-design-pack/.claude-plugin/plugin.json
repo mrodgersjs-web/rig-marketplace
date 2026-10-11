@@ -1,7 +1,7 @@
 {
  "name": "rig-design-pack",
  "version": "1.0.0",
- "description": "25 prime design agents \u2014 systems, UX research, visual direction. Every agent carries an RLM contract, a reward environment, and an executable done-test.",
+ "description": "Prime design agents: design systems, UX research and visual direction, with two design skills. Contents: 25 agents, 2 skills. Done-tests: pack.json.",
  "author": {
   "name": "RIG \u2014 Rodgers Intelligence Group",
   "url": "https://rodgersintelligence.com"

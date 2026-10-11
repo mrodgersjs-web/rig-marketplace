@@ -1,7 +1,7 @@
 {
  "name": "rig-prime-fleet",
  "version": "1.0.0",
- "description": "All 122 prime agents + 56 harnesses \u2014 the complete governed fleet. Every agent carries an RLM contract, a reward environment, and an executable done-test.",
+ "description": "Every agent, harness and skill from the four packs plus the meta-agents and runnable meta-skills of the full fleet. Contents: 122 agents, 32 harnesses, 23 skills. Done-tests: pack.json.",
  "author": {
   "name": "RIG \u2014 Rodgers Intelligence Group",
   "url": "https://rodgersintelligence.com"

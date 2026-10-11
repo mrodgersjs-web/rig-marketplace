@@ -1,0 +1,140 @@
+{
+  "schema": "rig.pack.v1",
+  "name": "rig-gtm-pack",
+  "version": "1.0.0",
+  "description": "Prime go-to-market agents: pipeline, outbound and revenue ops, with GTM goal harnesses and two runnable meta-skills.",
+  "contract": {
+    "runtime": "prime-agent (RLM: context held in the runtime kernel, not the prompt)",
+    "doctrine": "rig-gtm",
+    "provides": {
+      "agents": 28,
+      "harnesses": 10,
+      "skills": 2
+    },
+    "agent_sections": [
+      "## Operating contract",
+      "## RLM Harness (prime)"
+    ]
+  },
+  "permissions": {
+    "commands": [
+      "{python}"
+    ],
+    "env": [],
+    "writes_pack": false,
+    "network": false
+  },
+  "done_tests": [
+    {
+      "id": "agents-contract",
+      "description": "Every agent has frontmatter (name matches file, non-empty description) and the Operating contract and RLM Harness sections.",
+      "run": [
+        "{python}",
+        "-m",
+        "rigmarket.checks",
+        "agents",
+        "{pack}/agents",
+        "--expect",
+        "28",
+        "--section",
+        "## Operating contract",
+        "--section",
+        "## RLM Harness (prime)"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ]
+    },
+    {
+      "id": "harnesses-wellformed",
+      "description": "Every harness parses, its id matches the file name, every gate has a requirement and a proof, and the failure protocol names only declared gates.",
+      "run": [
+        "{python}",
+        "-m",
+        "rigmarket.checks",
+        "harnesses",
+        "{pack}/harnesses",
+        "--expect",
+        "10"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ]
+    },
+    {
+      "id": "skills-wellformed",
+      "description": "Every SKILL.md frontmatter name matches its directory and every run.py compiles.",
+      "run": [
+        "{python}",
+        "-m",
+        "rigmarket.checks",
+        "skills",
+        "{pack}/skills",
+        "--expect",
+        "2"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ]
+    },
+    {
+      "id": "run-meta-usage-telemetry",
+      "description": "meta-usage-telemetry/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-usage-telemetry/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-usage-telemetry/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-website-publisher",
+      "description": "meta-website-publisher/run.py passes on a target that exists.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-website-publisher/run.py",
+        "--input",
+        "{\"target\": \"{pack}/skills/meta-website-publisher/SKILL.md\"}"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-usage-telemetry-rejects-missing-target",
+      "description": "meta-usage-telemetry/run.py fails closed when the target does not exist.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-usage-telemetry/run.py",
+        "--input",
+        "{\"target\": \"{pack}/no-such-file\"}"
+      ],
+      "expect_exit": 1,
+      "expect_stdout_contains": [
+        "\"status\": \"FAIL\"",
+        "target not found"
+      ],
+      "timeout_s": 30
+    },
+    {
+      "id": "run-meta-usage-telemetry-rejects-empty-input",
+      "description": "meta-usage-telemetry/run.py fails closed with no target.",
+      "run": [
+        "{python}",
+        "{pack}/skills/meta-usage-telemetry/run.py",
+        "--input",
+        "{}"
+      ],
+      "expect_exit": 1,
+      "expect_stdout_contains": [
+        "contract violation"
+      ],
+      "timeout_s": 30
+    }
+  ]
+}
