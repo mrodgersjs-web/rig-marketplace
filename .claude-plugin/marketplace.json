@@ -5,34 +5,34 @@
   "url": "https://rodgersintelligence.com"
  },
  "metadata": {
-  "description": "Governed prime-agent packs with executable proof.",
+  "description": "Governed prime-agent plugin packs with manifest-declared done-tests and HMAC-sealed evidence packets.",
   "version": "1.0.0"
  },
  "plugins": [
   {
    "name": "rig-engineering-pack",
    "source": "./packs/rig-engineering-pack",
-   "description": "25 prime engineering agents \u2014 architecture, code, perf, review."
+   "description": "Prime engineering agents: architecture, code, performance and review, with code-session goal harnesses. Contents: 25 agents, 8 harnesses, 1 skill. Done-tests: pack.json."
   },
   {
    "name": "rig-content-pack",
    "source": "./packs/rig-content-pack",
-   "description": "25 prime content agents \u2014 long-form, short-form, editorial ops."
+   "description": "Prime content agents: long-form, short-form and editorial ops, with content-session goal harnesses. Contents: 25 agents, 8 harnesses. Done-tests: pack.json."
   },
   {
    "name": "rig-design-pack",
    "source": "./packs/rig-design-pack",
-   "description": "25 prime design agents \u2014 systems, UX research, visual direction."
+   "description": "Prime design agents: design systems, UX research and visual direction, with two design skills. Contents: 25 agents, 2 skills. Done-tests: pack.json."
   },
   {
    "name": "rig-gtm-pack",
    "source": "./packs/rig-gtm-pack",
-   "description": "28 prime GTM agents \u2014 pipeline, outbound, revenue ops."
+   "description": "Prime go-to-market agents: pipeline, outbound and revenue ops, with GTM goal harnesses and two runnable meta-skills. Contents: 28 agents, 10 harnesses, 2 skills. Done-tests: pack.json."
   },
   {
    "name": "rig-prime-fleet",
    "source": "./packs/rig-prime-fleet",
-   "description": "All 122 prime agents + 56 harnesses \u2014 the complete governed fleet."
+   "description": "Every agent, harness and skill from the four packs plus the meta-agents and runnable meta-skills of the full fleet. Contents: 122 agents, 32 harnesses, 23 skills. Done-tests: pack.json."
   }
  ]
 }

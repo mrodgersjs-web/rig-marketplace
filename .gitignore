@@ -1,2 +1,7 @@
 __pycache__/
 *.pyc
+.venv
+.tmp
+*.egg-info/
+build/
+evidence/

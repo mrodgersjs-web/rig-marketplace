@@ -1,0 +1,64 @@
+{
+  "schema": "rig.pack.v1",
+  "name": "rig-design-pack",
+  "version": "1.0.0",
+  "description": "Prime design agents: design systems, UX research and visual direction, with two design skills.",
+  "contract": {
+    "runtime": "prime-agent (RLM: context held in the runtime kernel, not the prompt)",
+    "doctrine": "rig-design",
+    "provides": {
+      "agents": 25,
+      "harnesses": 0,
+      "skills": 2
+    },
+    "agent_sections": [
+      "## Operating contract",
+      "## RLM Harness (prime)"
+    ]
+  },
+  "permissions": {
+    "commands": [
+      "{python}"
+    ],
+    "env": [],
+    "writes_pack": false
+  },
+  "done_tests": [
+    {
+      "id": "agents-contract",
+      "description": "Every agent has frontmatter (name matches file, non-empty description) and the Operating contract and RLM Harness sections.",
+      "run": [
+        "{python}",
+        "-m",
+        "rigmarket.checks",
+        "agents",
+        "{pack}/agents",
+        "--expect",
+        "25",
+        "--section",
+        "## Operating contract",
+        "--section",
+        "## RLM Harness (prime)"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ]
+    },
+    {
+      "id": "skills-wellformed",
+      "description": "Every SKILL.md frontmatter name matches its directory and every run.py compiles.",
+      "run": [
+        "{python}",
+        "-m",
+        "rigmarket.checks",
+        "skills",
+        "{pack}/skills",
+        "--expect",
+        "2"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ]
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "schema": "rig.pack.v1",
+  "name": "rig-engineering-pack",
+  "version": "1.0.0",
+  "description": "Prime engineering agents: architecture, code, performance and review, with code-session goal harnesses.",
+  "contract": {
+    "runtime": "prime-agent (RLM: context held in the runtime kernel, not the prompt)",
+    "doctrine": "rig-engineering",
+    "provides": {
+      "agents": 25,
+      "harnesses": 8,
+      "skills": 1
+    },
+    "agent_sections": [
+      "## Operating contract",
+      "## RLM Harness (prime)"
+    ]
+  },
+  "permissions": {
+    "commands": [
+      "{python}"
+    ],
+    "env": [],
+    "writes_pack": false
+  },
+  "done_tests": [
+    {
+      "id": "agents-contract",
+      "description": "Every agent has frontmatter (name matches file, non-empty description) and the Operating contract and RLM Harness sections.",
+      "run": [
+        "{python}",
+        "-m",
+        "rigmarket.checks",
+        "agents",
+        "{pack}/agents",
+        "--expect",
+        "25",
+        "--section",
+        "## Operating contract",
+        "--section",
+        "## RLM Harness (prime)"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ]
+    },
+    {
+      "id": "harnesses-wellformed",
+      "description": "Every harness parses, its id matches the file name, every gate has a requirement and a proof, and the failure protocol names only declared gates.",
+      "run": [
+        "{python}",
+        "-m",
+        "rigmarket.checks",
+        "harnesses",
+        "{pack}/harnesses",
+        "--expect",
+        "8"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ]
+    },
+    {
+      "id": "skills-wellformed",
+      "description": "Every SKILL.md frontmatter name matches its directory and every run.py compiles.",
+      "run": [
+        "{python}",
+        "-m",
+        "rigmarket.checks",
+        "skills",
+        "{pack}/skills",
+        "--expect",
+        "1"
+      ],
+      "expect_stdout_contains": [
+        "\"status\": \"PASS\""
+      ]
+    }
+  ]
+}
