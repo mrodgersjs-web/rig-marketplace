@@ -42,7 +42,7 @@ rigmarket = "rigmarket.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-rigmarket = ["py.typed"]
+rigmarket = ["py.typed", "*.json"]
 
 [tool.ruff]
 line-length = 120
