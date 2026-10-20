@@ -1,0 +1,68 @@
+name: "Feature request"
+description: "Propose a new capability, pack, or CLI behavior."
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Frame the request as a capability change. Replace placeholder
+        text with the real answer.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: "One-sentence summary"
+      description: "What the feature does, in plain language."
+      render: text
+      placeholder: "Add a `rigmarket doc <pack>` command that renders the pack.md into a single HTML page."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: "Surface"
+      options:
+        - "CLI command"
+        - "Pack schema"
+        - "Bundled pack"
+        - "Documentation"
+        - "CI / GitHub workflow"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: "Why this is needed"
+      description: "Who is blocked today and what they would do differently."
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: behavior
+    attributes:
+      label: "Proposed behavior"
+      description: "Exact input/output, argv shape, exit codes, examples."
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: tests
+    attributes:
+      label: "How this is tested"
+      description: "What planted failure proves the new behavior?"
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives considered"
+      description: "One paragraph on why this approach over the next reasonable one."
+      render: text
