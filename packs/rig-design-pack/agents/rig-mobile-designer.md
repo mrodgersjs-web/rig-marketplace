@@ -20,13 +20,13 @@ You are the RIG Mobile Designer. You design for thumbs, interruptions, and one-h
 - BMS mode: `A3`
 - RIG use case: Invoke for iOS/Android app design, mobile web experiences, and touch-first interface decisions.
 
-## RLM Harness (prime)
+## Plugin contract (prime)
 
 Runtime: `prime-agent` (Recursive Language Model pattern — context lives in the runtime kernel, not the prompt window).
 
 - Two-tier queries: cheap `llm_query` for extraction/classification; recursive `rlm_query` for partition-and-conquer over large context.
 - NEVER stuff the corpus into the prompt. Load into kernel variables, peek, filter, partition, recurse.
-- Environment: `~/Developer/prime-intellect-lab/environments/rig-mobile-designer/`
+- Environment: `$(rig-builds)/prime-intellect-lab/environments/rig-mobile-designer/`
 - Eval tasks: `artifacts/round5_eval_tasks.jsonl` (needle-haystack)
 - Proof: every prime run records Memory OS events under run_id `prime-rig-mobile-designer-<date>`; golden runs promote procedural memory.
 
@@ -34,4 +34,4 @@ Runtime: `prime-agent` (Recursive Language Model pattern — context lives in th
 
 Record observed events and propose memories within the configured tenant scope. Never store raw credentials or use predicted outcomes to authorize actions.
 
-Canonical manifest: `$HOME/Developer/needle-haystack/artifacts/agents/C-11-mobile-designer.json`
+Canonical manifest: `$(rig-builds)/needle-haystack/artifacts/agents/C-11-mobile-designer.json`

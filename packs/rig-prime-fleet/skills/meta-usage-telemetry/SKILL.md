@@ -42,7 +42,7 @@ This skill IS a memory writer: every telemetry event is also mirrored via `memor
 
 ## Done test
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py telemetry-check --log artifacts/meta/fixtures/telemetry_log_fixture.jsonl --catalogs artifacts/skill_catalog.json
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py telemetry-check --log artifacts/meta/fixtures/telemetry_log_fixture.jsonl --catalogs artifacts/skill_catalog.json
 ```
 
 ## Planted failure

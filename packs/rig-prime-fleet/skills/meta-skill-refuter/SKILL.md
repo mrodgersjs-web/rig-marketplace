@@ -43,7 +43,7 @@ Records `memory.record_event("meta_skill_refuter", {skill, verdict, escape_rate,
 
 ## Done test
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py refute-check --target artifacts/meta/fixtures/refuter_canary_skill.md --expect-escape 1
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py refute-check --target artifacts/meta/fixtures/refuter_canary_skill.md --expect-escape 1
 ```
 
 ## Planted failure

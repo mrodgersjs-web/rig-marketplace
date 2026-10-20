@@ -10,7 +10,7 @@
     "rig-gtm-pack"
   ],
   "contract": {
-    "runtime": "prime-agent (RLM: context held in the runtime kernel, not the prompt)",
+    "runtime": "plugin runtime (context held in the runtime kernel, not the prompt)",
     "doctrine": "rig-prime-fleet",
     "provides": {
       "agents": 122,
@@ -19,7 +19,7 @@
     },
     "agent_sections": [
       "## Operating contract",
-      "## RLM Harness (prime)"
+      "## Plugin contract (prime)"
     ]
   },
   "permissions": {
@@ -32,7 +32,7 @@
   "done_tests": [
     {
       "id": "agents-contract",
-      "description": "Every agent has frontmatter (name matches file, non-empty description) and the Operating contract and RLM Harness sections.",
+      "description": "Every agent has frontmatter (name matches file, non-empty description) and the Operating contract and Plugin contract sections.",
       "run": [
         "{python}",
         "-m",
@@ -44,7 +44,7 @@
         "--section",
         "## Operating contract",
         "--section",
-        "## RLM Harness (prime)"
+        "## Plugin contract (prime)"
       ],
       "expect_stdout_contains": [
         "\"status\": \"PASS\""

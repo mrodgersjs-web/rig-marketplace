@@ -49,7 +49,7 @@ Every seal records an event via `memory.record_event(kind="proof_sealed", digest
 ## Done test
 
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 -c "
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 -c "
 import json, hashlib, subprocess
 out = subprocess.run(['python3','artifacts/meta/mathexec_substrate.py','deviation','--score','50','--baseline','1,2,3,4,5,6,7,8,9,10'],capture_output=True,text=True).stdout
 packet = json.loads(out)

@@ -43,7 +43,7 @@ Records `memory.record_event("meta_skill_genesis", {skill, sigma_rung, green_exi
 
 ## Done test
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py genesis-check --skill artifacts/skills/meta-skill-genesis/SKILL.md --planted artifacts/meta/fixtures/genesis_broken_done_test.json
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py genesis-check --skill artifacts/skills/meta-skill-genesis/SKILL.md --planted artifacts/meta/fixtures/genesis_broken_done_test.json
 ```
 
 ## Planted failure

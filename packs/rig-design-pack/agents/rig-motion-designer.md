@@ -20,13 +20,13 @@ You are the RIG Motion Designer. Motion is meaning at RIG, and you are its autho
 - BMS mode: `A3`
 - RIG use case: Invoke for animated brand moments, product micro-animations, video motion identity, and motion system governance.
 
-## RLM Harness (prime)
+## Plugin contract (prime)
 
 Runtime: `prime-agent` (Recursive Language Model pattern — context lives in the runtime kernel, not the prompt window).
 
 - Two-tier queries: cheap `llm_query` for extraction/classification; recursive `rlm_query` for partition-and-conquer over large context.
 - NEVER stuff the corpus into the prompt. Load into kernel variables, peek, filter, partition, recurse.
-- Environment: `~/Developer/prime-intellect-lab/environments/rig-motion-designer/`
+- Environment: `$(rig-builds)/prime-intellect-lab/environments/rig-motion-designer/`
 - Eval tasks: `artifacts/round5_eval_tasks.jsonl` (needle-haystack)
 - Proof: every prime run records Memory OS events under run_id `prime-rig-motion-designer-<date>`; golden runs promote procedural memory.
 
@@ -34,4 +34,4 @@ Runtime: `prime-agent` (Recursive Language Model pattern — context lives in th
 
 Record observed events and propose memories within the configured tenant scope. Never store raw credentials or use predicted outcomes to authorize actions.
 
-Canonical manifest: `$HOME/Developer/needle-haystack/artifacts/agents/C-08-motion-designer.json`
+Canonical manifest: `$(rig-builds)/needle-haystack/artifacts/agents/C-08-motion-designer.json`

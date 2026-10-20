@@ -38,7 +38,7 @@ description: "A test agent."
 
 - Doctrine package: test
 
-## RLM Harness (prime)
+## Plugin contract (prime)
 
 Runtime: prime-agent
 """
@@ -57,9 +57,9 @@ def write_pack(root: Path, name: str = "demo-pack", tests: list | None = None, *
         "version": "1.0.0",
         "description": "A pack used by the test suite.",
         "contract": {
-            "runtime": "prime-agent",
+            "runtime": "plugin-runtime",
             "provides": {"agents": 1, "harnesses": 0, "skills": 0},
-            "agent_sections": ["## Operating contract", "## RLM Harness (prime)"],
+            "agent_sections": ["## Operating contract", "## Plugin contract (prime)"],
         },
         "permissions": {"commands": ["{python}"], "env": [], "writes_pack": False},
         "done_tests": tests or [

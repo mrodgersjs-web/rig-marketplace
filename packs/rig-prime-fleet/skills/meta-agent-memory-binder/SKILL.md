@@ -43,7 +43,7 @@ On every bind attempt this skill calls `memory.record_event` with `type: agent_m
 
 ## Done test
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py deviation --score 9 --baseline "10,11,9,10,12,9,11,10"
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py deviation --score 9 --baseline "10,11,9,10,12,9,11,10"
 ```
 The second command certifies that a bound agent's 9ms round-trip sits inside the fleet baseline band (expected: normal/weak band, |certified_z| < 3). A planted-failure fixture — a manifest whose `predict` surface is unwired, represented by a latency far outside the baseline — must drive the gate RED.
 

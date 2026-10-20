@@ -44,7 +44,7 @@ Writes call `memory.record_event` with `type: genome_write`, the candidate id, G
 
 ## Done test
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py symbolic --expression "(w1*f1 + w2*f2 + w3*f3)/(w1 + w2 + w3)" --symbols w1,w2,w3,f1,f2,f3
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py symbolic --expression "(w1*f1 + w2*f2 + w3*f3)/(w1 + w2 + w3)" --symbols w1,w2,w3,f1,f2,f3
 ```
 The second command proves the genome completeness formula is symbolically valid (expected: `status: PASS`, no undefined symbols). The planted-failure fixture — a genome missing its Proof section — must drive the same check RED.
 

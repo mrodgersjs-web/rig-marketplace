@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Prime go-to-market agents: pipeline, outbound and revenue ops, with GTM goal harnesses and two runnable meta-skills.",
   "contract": {
-    "runtime": "prime-agent (RLM: context held in the runtime kernel, not the prompt)",
+    "runtime": "plugin runtime (context held in the runtime kernel, not the prompt)",
     "doctrine": "rig-gtm",
     "provides": {
       "agents": 28,
@@ -13,7 +13,7 @@
     },
     "agent_sections": [
       "## Operating contract",
-      "## RLM Harness (prime)"
+      "## Plugin contract (prime)"
     ]
   },
   "permissions": {
@@ -26,7 +26,7 @@
   "done_tests": [
     {
       "id": "agents-contract",
-      "description": "Every agent has frontmatter (name matches file, non-empty description) and the Operating contract and RLM Harness sections.",
+      "description": "Every agent has frontmatter (name matches file, non-empty description) and the Operating contract and Plugin contract sections.",
       "run": [
         "{python}",
         "-m",
@@ -38,7 +38,7 @@
         "--section",
         "## Operating contract",
         "--section",
-        "## RLM Harness (prime)"
+        "## Plugin contract (prime)"
       ],
       "expect_stdout_contains": [
         "\"status\": \"PASS\""

@@ -43,7 +43,7 @@ Records `memory.record_event("meta_skill_surgeon", {cut_count, restored, precisi
 
 ## Done test
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py surgeon-check --verdicts artifacts/meta/fixtures/surgeon_verdicts.json --catalog artifacts/meta/fixtures/surgeon_catalog_copy.json --dry-run
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py surgeon-check --verdicts artifacts/meta/fixtures/surgeon_verdicts.json --catalog artifacts/meta/fixtures/surgeon_catalog_copy.json --dry-run
 ```
 
 ## Planted failure

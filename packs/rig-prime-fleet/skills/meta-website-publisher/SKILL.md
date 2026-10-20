@@ -49,7 +49,7 @@ Each publish records `memory.record_event(kind="catalog_published", pages=N, dep
 ## Done test
 
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 -c "
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 -c "
 import pathlib, hashlib, re
 root = pathlib.Path('artifacts/skills')
 files = sorted(root.glob('*/SKILL.md'))

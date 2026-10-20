@@ -44,7 +44,7 @@ Each scoring call is logged via `memory.record_event` with `type: deviation_scor
 
 ## Done test
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py adversarial --score 42 --baseline "1,2,3,4,5"
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py adversarial --score 42 --baseline "1,2,3,4,5"
 ```
 The second command runs the full adversarial battery on a strong outlier claim — expected: all leave-one-out z values stay in the same extreme band (stable certification). The planted-failure fixture — a degenerate baseline — must drive the gate RED.
 

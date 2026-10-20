@@ -51,7 +51,7 @@ capability_gates:
         failure_tier: halt
       - id: "2.3"
         requirement: "MathExec anchor: the composed stack's quantitative spine is proven live — the substrate passes self-test and the agent manifest names which estimator its scoring surfaces use"
-        proof: "python3 ~/Developer/needle-haystack/artifacts/meta/mathexec_substrate.py self-test exits 0 ('SELF-TEST PASS' saved); manifest contains an 'estimator:' field matching robust_madz|qn_z|bootstrap_lower|certified_z; both in .rig/compose/mathexec.txt"
+        proof: "python3 $(rig-builds)/needle-haystack/artifacts/meta/mathexec_substrate.py self-test exits 0 ('SELF-TEST PASS' saved); manifest contains an 'estimator:' field matching robust_madz|qn_z|bootstrap_lower|certified_z; both in .rig/compose/mathexec.txt"
         failure_tier: halt
   - category: "Memory Binding"
     gates:
@@ -110,7 +110,7 @@ refutation_gate:
 
 # --- deviatrix round4 executable refutation ---
 refutation_protocol:
-  executor: "python3 $HOME/Developer/needle-haystack/scripts/round4_harness_refutation.py --harness <this-harness>"
+  executor: "python3 $(rig-builds)/needle-haystack/scripts/round4_harness_refutation.py --harness <this-harness>"
   invariant: "Every declared gate must have a requirement and a proof, and an isolated removal of every gate proof must be rejected."
   planted_failure: "For every gate, replace its proof key with proof_removed in a scratch copy; the verifier must exit non-zero for that copy."
   certification: "The live harness is accepted only after the verifier completes every per-gate planted failure with zero misses."

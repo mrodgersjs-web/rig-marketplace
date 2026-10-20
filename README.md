@@ -50,7 +50,7 @@ Schema: [`src/rigmarket/pack.schema.json`](src/rigmarket/pack.schema.json) (JSON
 |---|---|
 | `name`, `version` | must match the directory name and `.claude-plugin/plugin.json` |
 | `contract.provides` | number of agents, harnesses and skills; rejected if it differs from the files |
-| `contract.agent_sections` | headings every agent must contain (the bundled packs require `## Operating contract` and `## RLM Harness (prime)`) |
+| `contract.agent_sections` | headings every agent must contain (the bundled packs require `## Operating contract` and `## Plugin contract (prime)`) |
 | `permissions.commands` | executables done-tests may start, capped by the built-in policy (below) |
 | `permissions.env` | environment variables passed through; all others are dropped. `PATH`, `HOME`, `TMPDIR` and loader variables cannot be listed |
 | `permissions.writes_pack` | if false, a done-test that changes any pack file fails |

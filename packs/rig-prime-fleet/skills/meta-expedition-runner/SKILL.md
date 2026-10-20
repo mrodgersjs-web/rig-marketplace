@@ -45,7 +45,7 @@ Records each expedition via `memory.record_event("expedition_run", {topic, winne
 
 ## Done test
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py adversarial --score 42 --baseline "38,39,40,40,41"
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py adversarial --score 42 --baseline "38,39,40,40,41"
 ```
 The self-test validates all three MathExec passes; the adversarial call certifies a genuine winner (42 vs a tight 38–41 baseline) and must return a certified z well above 3. The planted-failure case below MUST go RED.
 

@@ -5,3 +5,4 @@ __pycache__/
 *.egg-info/
 build/
 evidence/
+src/rigmarket.egg-info/

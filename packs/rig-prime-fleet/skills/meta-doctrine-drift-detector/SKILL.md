@@ -45,7 +45,7 @@ Records each audit via `memory.record_event("drift_audit", {surfaces, findings, 
 
 ## Done test
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py deviation --score 12 --baseline "0,0,1,0,2,0,1,0,0,1"
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py deviation --score 12 --baseline "0,0,1,0,2,0,1,0,0,1"
 ```
 The self-test proves the math layer is sound; the deviation call proves a 12-finding surface against a near-zero baseline is detected as extreme deviation (z_drift >> 30). The planted-failure case (below) MUST go RED.
 

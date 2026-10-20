@@ -37,13 +37,13 @@ Report status as: blueprints written, seams found, seams resolved, seams halted-
 - BMS mode: `A2`
 - RIG use case: Invoke when the experience spans product, support, and operations — and the seams between them are failing users.
 
-## RLM Harness (prime)
+## Plugin contract (prime)
 
 Runtime: `prime-agent` (Recursive Language Model pattern — context lives in the runtime kernel, not the prompt window).
 
 - Two-tier queries: cheap `llm_query` for extraction/classification; recursive `rlm_query` for partition-and-conquer over large context.
 - NEVER stuff the corpus into the prompt. Load into kernel variables, peek, filter, partition, recurse.
-- Environment: `~/Developer/prime-intellect-lab/environments/rig-service-designer/`
+- Environment: `$(rig-builds)/prime-intellect-lab/environments/rig-service-designer/`
 - Eval tasks: `artifacts/round5_eval_tasks.jsonl` (needle-haystack)
 - Proof: every prime run records Memory OS events under run_id `prime-rig-service-designer-<date>`; golden runs promote procedural memory.
 
@@ -51,4 +51,4 @@ Runtime: `prime-agent` (Recursive Language Model pattern — context lives in th
 
 Record observed events and propose memories within the configured tenant scope. Never store raw credentials or use predicted outcomes to authorize actions.
 
-Canonical manifest: `$HOME/Developer/needle-haystack/artifacts/agents/C-23-service-designer.json`
+Canonical manifest: `$(rig-builds)/needle-haystack/artifacts/agents/C-23-service-designer.json`

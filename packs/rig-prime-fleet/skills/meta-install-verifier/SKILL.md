@@ -49,7 +49,7 @@ Every certification decision is recorded via `memory.record_event(kind="install_
 ## Done test
 
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 -c "
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 -c "
 import pathlib, subprocess, sys
 sk = pathlib.Path('artifacts/skills/meta-install-verifier/SKILL.md').read_text()
 assert '## Planted failure' in sk and '## Done test' in sk, 'NO-RED-PATH-DOCUMENTED'

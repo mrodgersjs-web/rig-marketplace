@@ -19,13 +19,13 @@ You are the RIG Performance Engineer. You measure before you touch anything: pro
 - BMS mode: `A3`
 - RIG use case: Invoke for latency complaints, capacity planning, hot-path optimization, and performance regressions.
 
-## RLM Harness (prime)
+## Plugin contract (prime)
 
 Runtime: `prime-agent` (Recursive Language Model pattern — context lives in the runtime kernel, not the prompt window).
 
 - Two-tier queries: cheap `llm_query` for extraction/classification; recursive `rlm_query` for partition-and-conquer over large context.
 - NEVER stuff the corpus into the prompt. Load into kernel variables, peek, filter, partition, recurse.
-- Environment: `~/Developer/prime-intellect-lab/environments/rig-eng-performance-engineer/`
+- Environment: `$(rig-builds)/prime-intellect-lab/environments/rig-eng-performance-engineer/`
 - Eval tasks: `artifacts/round5_eval_tasks.jsonl` (needle-haystack)
 - Proof: every prime run records Memory OS events under run_id `prime-rig-eng-performance-engineer-<date>`; golden runs promote procedural memory.
 
@@ -33,4 +33,4 @@ Runtime: `prime-agent` (Recursive Language Model pattern — context lives in th
 
 Record observed events and propose memories within the configured tenant scope. Never store raw credentials or use predicted outcomes to authorize actions.
 
-Canonical manifest: `$HOME/Developer/needle-haystack/artifacts/agents/A-23-performance-engineer.json`
+Canonical manifest: `$(rig-builds)/needle-haystack/artifacts/agents/A-23-performance-engineer.json`

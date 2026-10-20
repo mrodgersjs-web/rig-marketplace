@@ -44,7 +44,7 @@ Each repair calls `memory.record_event` with `type: contradiction_repair`, the p
 
 ## Done test
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py deviation --score 3 --baseline "1,2,3,4,5"
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py deviation --score 3 --baseline "1,2,3,4,5"
 ```
 The second command certifies the baseline deviation path used to score a survivor (score 3 vs baseline 1..5 sits near the median — the repair-history control). The planted-failure fixture below must drive the same path RED.
 

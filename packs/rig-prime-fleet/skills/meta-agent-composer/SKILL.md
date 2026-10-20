@@ -45,7 +45,7 @@ Records each composition via `memory.record_event("agent_composed", {role, skill
 
 ## Done test
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py symbolic --expression "traceability = caps_resolved / caps_declared" --symbols traceability caps_resolved caps_declared
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py symbolic --expression "traceability = caps_resolved / caps_declared" --symbols traceability caps_resolved caps_declared
 ```
 The self-test proves the math layer; the symbolic pass proves the traceability formula the composer certifies against parses cleanly. The planted-failure case below MUST go RED.
 

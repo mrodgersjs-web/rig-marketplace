@@ -29,13 +29,13 @@ def test_agent_checks(tmp_path):
     (tmp_path / "good.md").write_text(AGENT.format(name="good"))
     (tmp_path / "misnamed.md").write_text(AGENT.format(name="other"))
     (tmp_path / "bare.md").write_text("# no frontmatter\n")
-    (tmp_path / "nosection.md").write_text(AGENT.format(name="nosection").replace("## RLM Harness (prime)", ""))
-    r = run_check("agents", tmp_path, None, ["## Operating contract", "## RLM Harness (prime)"])
+    (tmp_path / "nosection.md").write_text(AGENT.format(name="nosection").replace("## Plugin contract (prime)", ""))
+    r = run_check("agents", tmp_path, None, ["## Operating contract", "## Plugin contract (prime)"])
     assert r["status"] == "FAIL" and r["checked"] == 4 and r["failed"] == 3
     assert "good.md" not in r["failures"]
     assert "frontmatter name 'other'" in r["failures"]["misnamed.md"][0]
     assert "frontmatter" in r["failures"]["bare.md"][0]
-    assert r["failures"]["nosection.md"] == ["missing section '## RLM Harness (prime)'"]
+    assert r["failures"]["nosection.md"] == ["missing section '## Plugin contract (prime)'"]
 
 
 def test_harness_checks(tmp_path):

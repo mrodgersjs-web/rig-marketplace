@@ -49,7 +49,7 @@ This skill IS the integration: it is the only sanctioned path to `memory.record_
 ## Done test
 
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 -c "
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 -c "
 import pathlib, re
 skills = sorted(pathlib.Path('artifacts/skills').glob('*/SKILL.md'))
 meta = [s for s in skills if s.parent.name.startswith('meta-')]

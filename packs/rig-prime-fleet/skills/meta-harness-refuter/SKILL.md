@@ -45,7 +45,7 @@ Records each refutation via `memory.record_event("harness_refutation", {harness,
 
 ## Done test
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py deviation --score 1.0 --baseline "0.6,0.75,0.8,0.85,0.9"
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py deviation --score 1.0 --baseline "0.6,0.75,0.8,0.85,0.9"
 ```
 The self-test proves the estimator layer; the deviation call proves a refutation_rate of 1.0 is correctly recognized as above the historical baseline. The planted-failure case below MUST go RED.
 

@@ -42,7 +42,7 @@ Records `memory.record_event("meta_catalog_pruner", {mode, entries, violations, 
 
 ## Done test
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py pruner-check --probe artifacts/meta/fixtures/package15_probe.json --p14 artifacts/meta/p14_manifest.json --expect-reject
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py pruner-check --probe artifacts/meta/fixtures/package15_probe.json --p14 artifacts/meta/p14_manifest.json --expect-reject
 ```
 
 ## Planted failure

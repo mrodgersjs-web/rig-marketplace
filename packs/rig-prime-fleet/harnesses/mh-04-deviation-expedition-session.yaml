@@ -29,7 +29,7 @@ capability_gates:
     gates:
       - id: "1.1"
         requirement: "MathExec substrate proven live before any scoring: self-test passes including its two planted failures, establishing the estimator can go red this session"
-        proof: "python3 ~/Developer/needle-haystack/artifacts/meta/mathexec_substrate.py self-test exits 0 with 'SELF-TEST PASS: 7 checks incl. 2 planted failures' saved to .rig/expedition/mathexec-selftest.txt"
+        proof: "python3 $(rig-builds)/needle-haystack/artifacts/meta/mathexec_substrate.py self-test exits 0 with 'SELF-TEST PASS: 7 checks incl. 2 planted failures' saved to .rig/expedition/mathexec-selftest.txt"
         failure_tier: halt
       - id: "1.2"
         requirement: "Baseline corpus validated: n >= 5 numeric scores, no all-identical values (MAD=0 trap), provenance of the corpus recorded"
@@ -53,11 +53,11 @@ capability_gates:
     gates:
       - id: "3.1"
         requirement: "Certified z computed per finalist: every tail finalist is scored via the deviation subcommand and certified_z is the conservative minimum across estimators (MAD, Qn, bootstrap, alternate corpus when present)"
-        proof: "python3 ~/Developer/needle-haystack/artifacts/meta/mathexec_substrate.py deviation --score <s> --baseline <b> per finalist; JSON outputs with 'certified_z' saved to .rig/expedition/zscores/; no z taken from a single estimator"
+        proof: "python3 $(rig-builds)/needle-haystack/artifacts/meta/mathexec_substrate.py deviation --score <s> --baseline <b> per finalist; JSON outputs with 'certified_z' saved to .rig/expedition/zscores/; no z taken from a single estimator"
         failure_tier: halt
       - id: "3.2"
         requirement: "Adversarial stability for extremes: any finalist with |z| >= 10 passes the substrate's adversarial pass (leave-one-out, perturbation, estimator swap) before its band is trusted"
-        proof: "python3 ~/Developer/needle-haystack/artifacts/meta/mathexec_substrate.py adversarial --score <s> --baseline <b> output showing band-stable verdict saved per extreme finalist"
+        proof: "python3 $(rig-builds)/needle-haystack/artifacts/meta/mathexec_substrate.py adversarial --score <s> --baseline <b> output showing band-stable verdict saved per extreme finalist"
         failure_tier: halt
       - id: "3.3"
         requirement: "Sigma-band routing executed: every certified finalist is routed through the Deviatrix band table (ceiling_breach >= ±30, strong_deviation >= 5, differentiated_ordinary >= 3, etc.) and the routing record {z_cert, band, action, target} is emitted per finalist"
@@ -114,7 +114,7 @@ refutation_gate:
 
 # --- deviatrix round4 executable refutation ---
 refutation_protocol:
-  executor: "python3 $HOME/Developer/needle-haystack/scripts/round4_harness_refutation.py --harness <this-harness>"
+  executor: "python3 $(rig-builds)/needle-haystack/scripts/round4_harness_refutation.py --harness <this-harness>"
   invariant: "Every declared gate must have a requirement and a proof, and an isolated removal of every gate proof must be rejected."
   planted_failure: "For every gate, replace its proof key with proof_removed in a scratch copy; the verifier must exit non-zero for that copy."
   certification: "The live harness is accepted only after the verifier completes every per-gate planted failure with zero misses."

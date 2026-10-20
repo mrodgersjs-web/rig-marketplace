@@ -12,7 +12,7 @@ The manifest is `pack.json` (format `rig.pack.v1`). `rigmarket validate` rejects
 
 | id | checks |
 |---|---|
-| `agents-contract` | Every agent has frontmatter (name matches file, non-empty description) and the Operating contract and RLM Harness sections. |
+| `agents-contract` | Every agent has frontmatter (name matches file, non-empty description) and the Operating contract and Plugin contract sections. |
 | `harnesses-wellformed` | Every harness parses, its id matches the file name, every gate has a requirement and a proof, and the failure protocol names only declared gates. |
 | `skills-wellformed` | Every SKILL.md frontmatter name matches its directory and every run.py compiles. |
 | `run-meta-usage-telemetry` | meta-usage-telemetry/run.py passes on a target that exists. |

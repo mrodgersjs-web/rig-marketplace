@@ -48,7 +48,7 @@ Each routing decision is recorded via `memory.record_event(kind="band_routed", z
 ## Done test
 
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 -c "
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 -c "
 import json, subprocess
 def band(score):
     out = subprocess.run(['python3','artifacts/meta/mathexec_substrate.py','deviation','--score',str(score),'--baseline','0.1,-0.2,0.3,0.0,0.2,-0.1,0.15,-0.05,0.25,-0.15'],capture_output=True,text=True).stdout

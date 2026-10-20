@@ -44,7 +44,7 @@ Every round calls `memory.record_event` with `type: amplification_round`, the as
 
 ## Done test
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py deviation --score 40 --baseline "1.1,1.2,1.05,1.3,1.15,1.1,1.2"
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py deviation --score 40 --baseline "1.1,1.2,1.05,1.3,1.15,1.1,1.2"
 ```
 The second command certifies that a claimed A = 40 amplification is a genuine positive deviation vs typical round history (~1.1–1.3x) — expected: large positive certified_z (`ceiling_breach` band), proving the detector fires for real amplification. The planted-failure fixture — a round that produced no improvement — must drive the same gate RED.
 

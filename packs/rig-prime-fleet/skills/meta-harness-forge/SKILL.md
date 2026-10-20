@@ -45,7 +45,7 @@ Records each forge via `memory.record_event("harness_forged", {session_type, gat
 
 ## Done test
 ```bash
-cd ~/Developer/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py symbolic --expression "coverage = gates_plant_verified / gates_total" --symbols coverage gates_plant_verified gates_total
+cd $(rig-builds)/needle-haystack && python3 artifacts/meta/mathexec_substrate.py self-test && python3 artifacts/meta/mathexec_substrate.py symbolic --expression "coverage = gates_plant_verified / gates_total" --symbols coverage gates_plant_verified gates_total
 ```
 The self-test proves the math layer; the symbolic pass proves the coverage formula the forge certifies against parses and simplifies cleanly. The planted-failure case below MUST go RED.
 
