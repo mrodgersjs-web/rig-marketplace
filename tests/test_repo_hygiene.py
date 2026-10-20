@@ -147,3 +147,32 @@ def test_ci_workflow_runs_on_push_and_pull_request() -> None:
     assert re.search(r"(?m)^on:\s*$", ci), "ci.yml is missing the `on:` key"
     assert re.search(r"(?m)^\s+push:\s*$", ci), "ci.yml does not trigger on push"
     assert re.search(r"(?m)^\s+pull_request:\s*$", ci), "ci.yml does not trigger on pull_request"
+
+
+def test_copilot_instructions_list_truth_rule() -> None:
+    """The polish brief says copilot-instructions must carry a truth rule
+    saying numbers in docs come from a command. Assert that exact phrase is
+    present so the rule cannot drift in edits.
+    """
+    copilot = (ROOT / ".github" / "copilot-instructions.md").read_text(encoding="utf-8")
+    assert "Truth rule" in copilot
+    assert "command" in copilot.lower()
+
+
+def test_copilot_instructions_list_setups() -> None:
+    """Copilot must list the exact setup commands the test and lint run."""
+    copilot = (ROOT / ".github" / "copilot-instructions.md").read_text(encoding="utf-8")
+    assert "pip install" in copilot
+    assert "ruff" in copilot.lower()
+    assert "pytest" in copilot.lower()
+
+
+def test_readme_install_section_explains_pypi_404() -> None:
+    """The brief flagged the previous README claim of a PyPI install path;
+    the polished README must explicitly warn that bare `pip install
+    rig-marketplace` fails and point readers at the git-based path.
+    """
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "## Install" in readme, "README is missing an '## Install' section"
+    # The git-clone example must target this repo.
+    assert "git clone https://github.com/mrodgersjs-web/rig-marketplace" in readme

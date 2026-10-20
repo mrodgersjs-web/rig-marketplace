@@ -3,12 +3,25 @@
 
 <p align="center"><img src="docs/rig-marketplace-demo.gif" alt="demo" width="720" /></p>
 
-[![ci](https://github.com/mrodgersjs-web/rig-marketplace/actions/workflows/ci.yml/badge.svg)](https://github.com/mrodgersjs-web/rig-marketplace/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/mrodgersjs-web/rig-marketplace/ci.yml?branch=main&label=CI)](https://github.com/mrodgersjs-web/rig-marketplace/actions/workflows/ci.yml)
 
 Governed prime-agent plugin packs. Each pack ships a manifest (`pack.json`) that declares its contract,
 its permissions and its done-tests. The `rigmarket` CLI validates the manifest, runs the done-tests in a
 throwaway copy of the pack, and seals the results into an HMAC-signed evidence packet that a verifier
 rejects if anything was edited.
+
+## Install
+
+This package is **not** published on PyPI; a bare `pip install rig-marketplace` will 404. From a fresh
+checkout:
+
+```
+git clone https://github.com/mrodgersjs-web/rig-marketplace
+cd rig-marketplace
+pip install -e .
+```
+
+(`pip install git+https://github.com/mrodgersjs-web/rig-marketplace` works too.)
 
 ## Packs
 
@@ -188,3 +201,7 @@ pytest -q
 - Public-key signatures so a verifier does not need the sealing secret.
 - `mcp/server.py` (stdio MCP server) depends on external RIG tooling and is not exercised by CI.
 - Paid distribution. No payment or entitlement code is in this repo.
+
+---
+
+Built by Mike Rodgers · rodgersintelligence.com
