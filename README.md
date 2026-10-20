@@ -12,7 +12,7 @@ rejects if anything was edited.
 
 ## Install
 
-This package is **not** published on PyPI; a bare `pip install rig-marketplace` will 404. From a fresh
+This package is **not** published on PyPI; a bare install by name from PyPI will fail. From a fresh
 checkout:
 
 ```

@@ -6,6 +6,8 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [1.1.0] - 2026-10-19
 
+- This commit rewords the README note about PyPI so it no longer contains a literal `pip install` of an unpublished package name; the install commands shown are the from-source ones that work.
+
 ### Changed
 
 - **Drop "RLM"** in favor of plain language. The agent contract heading
