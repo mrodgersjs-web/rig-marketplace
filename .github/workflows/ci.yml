@@ -9,6 +9,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       matrix:
         python-version: ["3.10", "3.12"]
@@ -28,6 +29,7 @@ jobs:
     # Validate, test, seal and verify every bundled pack with the installed CLI.
     runs-on: ubuntu-latest
     needs: test
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -94,6 +96,7 @@ jobs:
     # containment test must run (RIGMARKET_REQUIRE_ENFORCED=1 turns a missing sandbox into an error).
     runs-on: macos-latest
     needs: test
+    timeout-minutes: 15
     env:
       RIGMARKET_REQUIRE_ENFORCED: "1"
     steps:
