@@ -43,7 +43,7 @@ rig-prime-fleet        1.0.0       122        32     23         25
 ## Quick start
 
 ```
-pip install .                      # Python 3.10+; depends on jsonschema and PyYAML
+pip install -e .                      # Python 3.10+; depends on jsonschema and PyYAML
 rigmarket list                     # packs and counts
 rigmarket validate                 # schema + on-disk checks for every pack in the catalog
 rigmarket test --out-dir evidence  # run every pack's done-tests (needs an enforced sandbox, see Containment)
